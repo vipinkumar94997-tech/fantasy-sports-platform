@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/slices/authSlice";
-import { GoogleLogin } from "@react-oauth/google";
 import { authService } from "../services/authService";
 import toast from "react-hot-toast";
 import { GiCricketBat } from "react-icons/gi";
@@ -110,7 +109,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-5">
+          {/* <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/10" />
             <span className="text-gray-600 text-sm">or</span>
             <div className="flex-1 h-px bg-white/10" />
@@ -124,7 +123,7 @@ const Login = () => {
               shape="rectangular"
               width="100%"
             />
-          </div>
+          </div> */}
 
           <p className="text-center text-gray-500 text-sm mt-6">
             New here?{" "}

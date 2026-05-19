@@ -5,14 +5,14 @@ import MatchCard from "../components/match/MatchCard";
 import SkeletonCard from "../components/common/SkeletonCard";
 import EmptyState from "../components/common/EmptyState";
 import Navbar from "../components/common/Navbar";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const FILTERS = ["All", "Cricket", "Football", "Live", "Upcoming"];
 
 const Home = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { list: matches, loading } = useSelector((s) => s.matches);
+  // const navigate = useNavigate();
+  const { list: matches = [], loading } = useSelector((s) => s.matches);
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const filtered = matches.filter((m) => {
+  const filtered = (matches || []).filter((m) => {
     if (filter === "All") return true;
     if (filter === "Live") return m.status === "live";
     if (filter === "Upcoming") return m.status === "upcoming";

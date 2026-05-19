@@ -1,24 +1,18 @@
 import { useSelector, useDispatch } from "react-redux";
-import { logout, getProfile } from "../redux/slices/authSlice";
-import { useEffect } from "react";
+import { logout } from "../redux/slices/authSlice";
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const { user, token, loading, error } = useSelector((state) => state.auth);
+  const { user, token, loading } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (token && !user) {
-      dispatch(getProfile());
-    }
-  }, [token]);
-
-  const handleLogout = () => dispatch(logout());
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return {
     user,
     token,
     loading,
-    error,
     isAuthenticated: !!token,
     logout: handleLogout,
   };

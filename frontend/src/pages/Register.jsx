@@ -60,21 +60,19 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (isRestrictedState(form.state)) {
-      toast.error(
-        `Fantasy gaming is not allowed in ${form.state} as per Indian law`,
-      );
+      toast.error(`Not allowed in ${form.state}`);
       return;
     }
     if (parseInt(form.age) < 18) {
-      toast.error("You must be 18 or older to play");
+      toast.error("Must be 18+");
       return;
     }
-    const res = await dispatch(registerUser(form));
-    if (res.meta.requestStatus === "fulfilled") {
-      toast.success("OTP sent to your phone!");
-      setStep(2);
-    } else {
-      toast.error(res.payload || "Registration failed");
+    try {
+      const res = await authService.register(form);
+      toast.success("Registered! Please login.");
+      navigate("/login");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
