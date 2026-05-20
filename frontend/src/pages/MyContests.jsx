@@ -4,7 +4,7 @@ import { contestService } from "../services/contestService";
 import Navbar from "../components/common/Navbar";
 import SkeletonCard from "../components/common/SkeletonCard";
 import EmptyState from "../components/common/EmptyState";
-import { formatCurrency, formatDate, getRankSuffix } from "../utils/helpers";
+import { formatCurrency, getRankSuffix } from "../utils/helpers";
 
 const MyContests = () => {
   const [contests, setContests] = useState([]);
@@ -15,7 +15,8 @@ const MyContests = () => {
   useEffect(() => {
     contestService
       .getMyContests()
-      .then((res) => setContests(res.data.contests))
+      .then((res) => setContests(res.data.contests || []))
+      .catch(() => setContests([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -71,19 +72,15 @@ const MyContests = () => {
               <div
                 key={i}
                 className="card p-5 cursor-pointer hover:border-primary-500/30 transition-all"
-                onClick={() =>
-                  entry.match?.status === "live" &&
-                  navigate(`/live/${entry.match._id}`)
-                }
               >
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h3 className="text-white font-bold text-sm">
-                      {entry.contest?.name}
+                      {entry.contest?.name || "Contest"}
                     </h3>
                     <p className="text-gray-400 text-xs mt-0.5">
-                      {entry.match?.team1?.shortName} vs{" "}
-                      {entry.match?.team2?.shortName}
+                      {entry.match?.team1ShortName} vs{" "}
+                      {entry.match?.team2ShortName}
                     </p>
                   </div>
                   <span
@@ -97,7 +94,7 @@ const MyContests = () => {
                   >
                     {entry.match?.status === "live"
                       ? "🔴 LIVE"
-                      : entry.match?.status?.toUpperCase()}
+                      : entry.match?.status?.toUpperCase() || "-"}
                   </span>
                 </div>
 
@@ -107,13 +104,13 @@ const MyContests = () => {
                     <p className="text-white text-sm font-bold">
                       {entry.contest?.entryFee === 0
                         ? "FREE"
-                        : formatCurrency(entry.contest?.entryFee)}
+                        : formatCurrency(entry.contest?.entryFee || 0)}
                     </p>
                   </div>
                   <div className="text-center">
                     <p className="text-gray-500 text-xs">Prize Pool</p>
                     <p className="text-primary-400 text-sm font-bold">
-                      {formatCurrency(entry.contest?.prizePool)}
+                      {formatCurrency(entry.contest?.prizePool || 0)}
                     </p>
                   </div>
                   <div className="text-center">

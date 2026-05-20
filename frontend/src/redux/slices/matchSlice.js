@@ -6,7 +6,8 @@ export const fetchMatches = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await matchService.getAll(params);
-      return res.data;
+      // Backend seedha array bhejta hai
+      return Array.isArray(res.data) ? res.data : res.data.matches || [];
     } catch (err) {
       return rejectWithValue(err.response?.data?.message);
     }
@@ -18,7 +19,7 @@ export const fetchMatchById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await matchService.getById(id);
-      return res.data;
+      return Array.isArray(res.data) ? res.data : res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message);
     }
@@ -47,17 +48,18 @@ const matchSlice = createSlice({
     builder
       .addCase(fetchMatches.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchMatches.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.matches;
+        state.list = action.payload; // seedha array save karo
       })
       .addCase(fetchMatches.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       .addCase(fetchMatchById.fulfilled, (state, action) => {
-        state.current = action.payload.match;
+        state.current = action.payload;
         state.players = action.payload.players || [];
       });
   },

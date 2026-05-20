@@ -6,6 +6,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import MatchDetail from "./pages/MatchDetail";
 import CreateTeam from "./pages/CreateTeam";
 import Contests from "./pages/Contests";
 import ContestDetail from "./pages/ContestDetail";
@@ -48,6 +49,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/match/:id"
+          element={
+            <ProtectedRoute>
+              <MatchDetail />
             </ProtectedRoute>
           }
         />

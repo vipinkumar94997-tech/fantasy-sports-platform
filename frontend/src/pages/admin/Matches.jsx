@@ -12,8 +12,12 @@ const emptyForm = {
   sport: "Cricket",
   venue: "",
   matchTime: "",
-  team1: { name: "", shortName: "", logo: "" },
-  team2: { name: "", shortName: "", logo: "" },
+  team1Name: "",
+  team1ShortName: "",
+  team1Logo: "",
+  team2Name: "",
+  team2ShortName: "",
+  team2Logo: "",
 };
 
 const AdminMatches = () => {
@@ -27,7 +31,8 @@ const AdminMatches = () => {
   const fetchMatches = () => {
     api
       .get("/admin/matches")
-      .then((res) => setMatches(res.data.matches))
+      .then((res) => setMatches(res.data.matches || []))
+      .catch(() => toast.error("Failed to load matches"))
       .finally(() => setLoading(false));
   };
 
@@ -87,7 +92,7 @@ const AdminMatches = () => {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-bold"
         >
           + Add Match
         </button>
@@ -111,7 +116,7 @@ const AdminMatches = () => {
           ))}
         </div>
 
-        {/* Add Match Modal */}
+        {/* Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
             <div className="bg-dark-200 border border-white/10 rounded-2xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
@@ -180,16 +185,13 @@ const AdminMatches = () => {
                   <p className="text-gray-400 text-xs font-semibold mb-3 uppercase">
                     Team 1
                   </p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <input
                       type="text"
-                      placeholder="Full Name (e.g. India)"
-                      value={form.team1.name}
+                      placeholder="Full Name (India)"
+                      value={form.team1Name}
                       onChange={(e) =>
-                        setForm({
-                          ...form,
-                          team1: { ...form.team1, name: e.target.value },
-                        })
+                        setForm({ ...form, team1Name: e.target.value })
                       }
                       required
                       className="bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
@@ -197,29 +199,31 @@ const AdminMatches = () => {
                     <input
                       type="text"
                       placeholder="Short Name (IND)"
-                      value={form.team1.shortName}
+                      value={form.team1ShortName}
                       onChange={(e) =>
-                        setForm({
-                          ...form,
-                          team1: { ...form.team1, shortName: e.target.value },
-                        })
+                        setForm({ ...form, team1ShortName: e.target.value })
                       }
                       required
                       className="bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
                     />
                   </div>
                   <input
-                    type="url"
-                    placeholder="Logo URL (optional)"
-                    value={form.team1.logo}
+                    type="text"
+                    placeholder="Logo URL (https://...)"
+                    value={form.team1Logo}
                     onChange={(e) =>
-                      setForm({
-                        ...form,
-                        team1: { ...form.team1, logo: e.target.value },
-                      })
+                      setForm({ ...form, team1Logo: e.target.value })
                     }
-                    className="w-full mt-3 bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+                    className="w-full bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
                   />
+                  {form.team1Logo && (
+                    <img
+                      src={form.team1Logo}
+                      alt="logo"
+                      className="w-10 h-10 rounded-full mt-2 object-cover border border-white/20"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
                 </div>
 
                 {/* Team 2 */}
@@ -227,16 +231,13 @@ const AdminMatches = () => {
                   <p className="text-gray-400 text-xs font-semibold mb-3 uppercase">
                     Team 2
                   </p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <input
                       type="text"
-                      placeholder="Full Name (e.g. Australia)"
-                      value={form.team2.name}
+                      placeholder="Full Name (Australia)"
+                      value={form.team2Name}
                       onChange={(e) =>
-                        setForm({
-                          ...form,
-                          team2: { ...form.team2, name: e.target.value },
-                        })
+                        setForm({ ...form, team2Name: e.target.value })
                       }
                       required
                       className="bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
@@ -244,29 +245,31 @@ const AdminMatches = () => {
                     <input
                       type="text"
                       placeholder="Short Name (AUS)"
-                      value={form.team2.shortName}
+                      value={form.team2ShortName}
                       onChange={(e) =>
-                        setForm({
-                          ...form,
-                          team2: { ...form.team2, shortName: e.target.value },
-                        })
+                        setForm({ ...form, team2ShortName: e.target.value })
                       }
                       required
                       className="bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
                     />
                   </div>
                   <input
-                    type="url"
-                    placeholder="Logo URL (optional)"
-                    value={form.team2.logo}
+                    type="text"
+                    placeholder="Logo URL (https://...)"
+                    value={form.team2Logo}
                     onChange={(e) =>
-                      setForm({
-                        ...form,
-                        team2: { ...form.team2, logo: e.target.value },
-                      })
+                      setForm({ ...form, team2Logo: e.target.value })
                     }
-                    className="w-full mt-3 bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+                    className="w-full bg-dark-300 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary-500"
                   />
+                  {form.team2Logo && (
+                    <img
+                      src={form.team2Logo}
+                      alt="logo"
+                      className="w-10 h-10 rounded-full mt-2 object-cover border border-white/20"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -290,7 +293,7 @@ const AdminMatches = () => {
           </div>
         )}
 
-        {/* Matches Table */}
+        {/* Table */}
         {loading ? (
           <div className="flex justify-center py-16">
             <Loader />
@@ -301,34 +304,49 @@ const AdminMatches = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    {[
-                      "Match",
-                      "Sport",
-                      "Time",
-                      "Status",
-                      "Contests",
-                      "Actions",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left text-gray-500 text-xs font-semibold uppercase px-5 py-4"
-                      >
-                        {h}
-                      </th>
-                    ))}
+                    {["Match", "Sport", "Time", "Status", "Actions"].map(
+                      (h) => (
+                        <th
+                          key={h}
+                          className="text-left text-gray-500 text-xs font-semibold uppercase px-5 py-4"
+                        >
+                          {h}
+                        </th>
+                      ),
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((match) => (
                     <tr
-                      key={match._id}
-                      className="border-b border-white/5 hover:bg-white/2 transition-colors"
+                      key={match.id}
+                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
                     >
                       <td className="px-5 py-4">
-                        <p className="text-white font-semibold text-sm">
-                          {match.team1?.shortName} vs {match.team2?.shortName}
+                        <div className="flex items-center gap-2">
+                          {match.team1Logo && (
+                            <img
+                              src={match.team1Logo}
+                              className="w-6 h-6 rounded-full object-cover"
+                              alt=""
+                              onError={(e) => (e.target.style.display = "none")}
+                            />
+                          )}
+                          <p className="text-white font-semibold text-sm">
+                            {match.team1ShortName} vs {match.team2ShortName}
+                          </p>
+                          {match.team2Logo && (
+                            <img
+                              src={match.team2Logo}
+                              className="w-6 h-6 rounded-full object-cover"
+                              alt=""
+                              onError={(e) => (e.target.style.display = "none")}
+                            />
+                          )}
+                        </div>
+                        <p className="text-gray-500 text-xs mt-0.5">
+                          {match.venue}
                         </p>
-                        <p className="text-gray-500 text-xs">{match.venue}</p>
                       </td>
                       <td className="px-5 py-4">
                         <span className="text-gray-300 text-sm">
@@ -344,7 +362,7 @@ const AdminMatches = () => {
                         <select
                           value={match.status}
                           onChange={(e) =>
-                            handleStatusChange(match._id, e.target.value)
+                            handleStatusChange(match.id, e.target.value)
                           }
                           className={`bg-transparent border rounded-lg px-2 py-1 text-xs font-semibold cursor-pointer focus:outline-none ${
                             match.status === "live"
@@ -362,19 +380,12 @@ const AdminMatches = () => {
                         </select>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-gray-300 text-sm">
-                          {match.totalContests || 0}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleDelete(match._id)}
-                            className="text-red-400 hover:text-red-300 text-xs font-semibold transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleDelete(match.id)}
+                          className="text-red-400 hover:text-red-300 text-xs font-semibold"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}

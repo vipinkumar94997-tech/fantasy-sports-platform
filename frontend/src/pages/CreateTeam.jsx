@@ -107,9 +107,11 @@ const CreateTeam = () => {
     }
   };
 
-  const filtered = players.filter(
+  const filtered = (players || []).filter(
     (p) => roleFilter === "ALL" || p.role === roleFilter,
   );
+  // console.log("Players:", players);
+  // console.log("Filtered:", filtered);
 
   if (loading)
     return (

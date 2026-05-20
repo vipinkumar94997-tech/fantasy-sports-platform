@@ -97,7 +97,7 @@ const Home = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((match) => (
-              <MatchCard key={match._id} match={match} />
+              <MatchCard key={match.id} match={match} />
             ))}
           </div>
         )}

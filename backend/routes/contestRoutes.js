@@ -1,24 +1,13 @@
 import express from "express";
-
-import {
-  getContests,
-  createContest,
-  joinContest,
-  getLeaderboard,
-} from "../controllers/contestController.js";
-
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Public
-router.get("/:matchId", getContests);
-router.get("/leaderboard/:id", getLeaderboard);
+router.get("/my-contests", protect, async (req, res) => {
+  res.json({ contests: [] });
+});
 
-// User
-router.post("/join", protect, joinContest);
-
-// Admin
-router.post("/create", protect, adminOnly, createContest);
+router.get("/:matchId", (req, res) => res.json({ contests: [] }));
+router.post("/join", protect, (req, res) => res.json({ message: "joined" }));
 
 export default router;
