@@ -11,6 +11,11 @@ import {
   getAllContests,
 } from "../controllers/adminController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import {
+  approveKYC,
+  getAllKYC,
+  rejectKYC,
+} from "../controllers/KycController.js";
 
 const router = express.Router();
 
@@ -25,5 +30,8 @@ router.put("/matches/:id", protect, adminOnly, updateMatch);
 router.delete("/matches/:id", protect, adminOnly, deleteMatch);
 router.get("/transactions", protect, adminOnly, getAllTransactions);
 router.get("/contests", protect, adminOnly, getAllContests);
+router.get("/kyc", protect, adminOnly, getAllKYC);
+router.put("/kyc/:id/approve", protect, adminOnly, approveKYC);
+router.put("/kyc/:id/reject", protect, adminOnly, rejectKYC);
 
 export default router;

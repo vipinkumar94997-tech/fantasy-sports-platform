@@ -22,6 +22,7 @@ import AdminMatches from "./pages/admin/Matches";
 import AdminUsers from "./pages/admin/Users";
 import AdminKYC from "./pages/admin/KYC";
 import AdminWithdrawals from "./pages/admin/Withdrawals";
+import KYC from "./pages/KYC";
 
 const App = () => {
   return (
@@ -163,6 +164,14 @@ const App = () => {
           element={
             <ProtectedRoute adminOnly>
               <AdminKYC />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/kyc"
+          element={
+            <ProtectedRoute>
+              <KYC />
             </ProtectedRoute>
           }
         />

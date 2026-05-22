@@ -97,7 +97,7 @@ const AdminUsers = () => {
                   <tbody>
                     {users.map((user) => (
                       <tr
-                        key={user._id}
+                        key={user.id}
                         className={`border-b border-white/5 hover:bg-white/2 transition-colors ${user.banned ? "opacity-50" : ""}`}
                       >
                         <td className="px-4 py-4">
@@ -145,7 +145,7 @@ const AdminUsers = () => {
                         </td>
                         <td className="px-4 py-4">
                           <button
-                            onClick={() => handleBan(user._id, user.banned)}
+                            onClick={() => handleBan(user.id, user.banned)}
                             className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
                               user.banned
                                 ? "bg-primary-500/20 text-primary-400 hover:bg-primary-500/30"

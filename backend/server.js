@@ -22,6 +22,7 @@ import contestRoutes from "./routes/contestRoutes.js";
 import walletRoutes from "./routes/walletRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
+import kycRoutes from "./routes/kycRoutes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -59,7 +60,8 @@ app.use(
   }),
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(morgan("dev"));
 
 // ================= ROUTES =================
@@ -70,6 +72,7 @@ app.use("/api/contests", contestRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/kyc", kycRoutes);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {

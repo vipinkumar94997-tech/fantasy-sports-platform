@@ -15,6 +15,10 @@ import KYC from "./KYC.js";
 import Notification from "./Notification.js";
 import PromoCode from "./PromoCode.js";
 
+// Associassions
+KYC.belongsTo(User, { foreignKey: "userId", as: "user" });
+User.hasOne(KYC, { foreignKey: "userId", as: "kyc" });
+
 // ================= USER - WALLET =================
 User.hasOne(Wallet, {
   foreignKey: "userId",
