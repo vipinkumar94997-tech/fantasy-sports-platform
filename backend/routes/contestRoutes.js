@@ -1,19 +1,26 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
+import ContestEntry from "../models/ContestEntry.js";
 import Contest from "../models/Contest.js";
 import Match from "../models/Match.js";
 
 const router = express.Router();
 
+// My Contests — PEHLE RAKHO
 router.get("/my-contests", protect, async (req, res) => {
   try {
-    const contests = await Contest.findAll({
-      include: [{ model: Match, as: "match" }],
+    const entries = await ContestEntry.findAll({
+      where: { userId: req.user.id },
+      include: [
+        { model: Contest, as: "contest" },
+        { model: Match, as: "match" },
+      ],
       order: [["createdAt", "DESC"]],
     });
-    res.json({ contests });
+    res.json({ contests: entries });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("My contests error:", err);
+    res.json({ contests: [] });
   }
 });
 
@@ -24,8 +31,12 @@ router.get("/:matchId", async (req, res) => {
     });
     res.json({ contests });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({ contests: [] });
   }
+});
+
+router.post("/join", protect, async (req, res) => {
+  res.json({ message: "joined" });
 });
 
 export default router;

@@ -42,7 +42,6 @@ Player.belongsTo(Match, {
 // ================= USER - TEAM =================
 User.hasMany(Team, {
   foreignKey: "userId",
-  onDelete: "CASCADE",
 });
 
 Team.belongsTo(User, {
@@ -52,7 +51,6 @@ Team.belongsTo(User, {
 // ================= MATCH - TEAM =================
 Match.hasMany(Team, {
   foreignKey: "matchId",
-  onDelete: "CASCADE",
 });
 
 Team.belongsTo(Match, {
@@ -73,11 +71,11 @@ Player.belongsToMany(Team, {
 // ================= CONTEST - ENTRY =================
 Contest.hasMany(ContestEntry, {
   foreignKey: "contestId",
-  onDelete: "CASCADE",
 });
 
 ContestEntry.belongsTo(Contest, {
   foreignKey: "contestId",
+  as: "contest",
 });
 
 User.hasMany(ContestEntry, {
@@ -87,6 +85,7 @@ User.hasMany(ContestEntry, {
 
 ContestEntry.belongsTo(User, {
   foreignKey: "userId",
+  as: "user",
 });
 
 Team.hasMany(ContestEntry, {
@@ -105,6 +104,7 @@ Match.hasMany(ContestEntry, {
 
 ContestEntry.belongsTo(Match, {
   foreignKey: "matchId",
+  as: "match",
 });
 
 // ================= TRANSACTIONS =================
