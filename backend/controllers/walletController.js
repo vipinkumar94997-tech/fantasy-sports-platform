@@ -1,125 +1,115 @@
 import Wallet from "../models/Wallet.js";
 import Transaction from "../models/Transaction.js";
-
-// ================= GET WALLET =================
+import Withdrawal from "../models/Withdrawal.js";
 
 export const getWallet = async (req, res) => {
   try {
-    let wallet = await Wallet.findOne({
-      where: { userId: req.user.id },
+    const wallet = await Wallet.findOne({ where: { userId: req.user.id } });
+    res.json({
+      balance: wallet?.balance || 0,
+      bonusBalance: wallet?.bonusBalance || 0,
     });
-
-    if (!wallet) {
-      wallet = await Wallet.create({
-        userId: req.user.id,
-      });
-    }
-
-    res.json(wallet);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
-
-// ================= ADD MONEY =================
 
 export const addMoney = async (req, res) => {
   try {
-    const { amount, orderId } = req.body;
+    const { amount } = req.body;
+    if (!amount || amount < 10)
+      return res.status(400).json({ message: "Minimum ₹10 required" });
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({
-        message: "Invalid amount",
-      });
-    }
+    const wallet = await Wallet.findOne({ where: { userId: req.user.id } });
+    if (!wallet) return res.status(404).json({ message: "Wallet not found" });
 
-    const wallet = await Wallet.findOne({
-      where: { userId: req.user.id },
-    });
-
-    wallet.balance += Number(amount);
+    wallet.balance += parseFloat(amount);
     await wallet.save();
 
-    // Transaction entry
     await Transaction.create({
       userId: req.user.id,
       type: "deposit",
-      amount,
+      amount: parseFloat(amount),
       status: "success",
-      orderId,
-      note: "Money added to wallet",
+      note: "Added via wallet",
     });
 
-    res.json({
-      message: "Money added successfully",
-      wallet,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.json({ message: "Money added", balance: wallet.balance });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// ================= WITHDRAW MONEY =================
-
 export const withdrawMoney = async (req, res) => {
   try {
-    const { amount, note } = req.body;
+    const { amount, upiId } = req.body;
 
-    if (!amount || amount <= 0) {
-      return res.status(400).json({
-        message: "Invalid amount",
-      });
-    }
+    if (!amount || amount < 100)
+      return res.status(400).json({ message: "Minimum withdrawal ₹100" });
 
-    const wallet = await Wallet.findOne({
-      where: { userId: req.user.id },
-    });
+    if (!upiId) return res.status(400).json({ message: "UPI ID required" });
 
-    if (wallet.balance < amount) {
-      return res.status(400).json({
-        message: "Insufficient balance",
-      });
-    }
+    const wallet = await Wallet.findOne({ where: { userId: req.user.id } });
+    if (!wallet || wallet.balance < amount)
+      return res.status(400).json({ message: "Insufficient balance" });
 
-    wallet.balance -= Number(amount);
+    const tdsAmount = amount > 10000 ? amount * 0.3 : 0;
+
+    wallet.balance -= parseFloat(amount);
     await wallet.save();
+
+    await Withdrawal.create({
+      userId: req.user.id,
+      amount: parseFloat(amount),
+      upiId,
+      tdsAmount,
+      status: "pending",
+    });
 
     await Transaction.create({
       userId: req.user.id,
       type: "withdrawal",
-      amount,
+      amount: parseFloat(amount),
       status: "pending",
-      note: note || "Withdrawal request",
+      note: `Withdrawal to ${upiId}`,
     });
 
-    res.json({
-      message: "Withdrawal request submitted",
-      wallet,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.json({ message: "Withdrawal request submitted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
-
-// ================= TRANSACTION HISTORY =================
 
 export const getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.findAll({
       where: { userId: req.user.id },
       order: [["createdAt", "DESC"]],
+      limit: 50,
     });
+    res.json({ transactions });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    res.json(transactions);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+export const verifyPayment = async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const wallet = await Wallet.findOne({ where: { userId: req.user.id } });
+    if (wallet) {
+      wallet.balance += parseFloat(amount || 0);
+      await wallet.save();
+      await Transaction.create({
+        userId: req.user.id,
+        type: "deposit",
+        amount: parseFloat(amount),
+        status: "success",
+        note: "Payment verified",
+      });
+    }
+    res.json({ message: "Payment verified" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

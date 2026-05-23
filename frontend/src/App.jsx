@@ -35,16 +35,22 @@ const App = () => {
             color: "#fff",
             border: "1px solid rgba(255,255,255,0.1)",
           },
-          success: { iconTheme: { primary: "#22c55e", secondary: "#fff" } },
+          success: {
+            iconTheme: {
+              primary: "#22c55e",
+              secondary: "#fff",
+            },
+          },
         }}
       />
+
       <Routes>
-        {/* Public */}
+        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected */}
+        {/* User Protected Routes */}
         <Route
           path="/home"
           element={
@@ -53,6 +59,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/match/:id"
           element={
@@ -61,6 +68,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/match/:id/create-team"
           element={
@@ -69,6 +77,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/match/:id/contests"
           element={
@@ -77,6 +86,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/contest/:id"
           element={
@@ -85,6 +95,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/live/:matchId"
           element={
@@ -93,6 +104,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/my-teams"
           element={
@@ -101,6 +113,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/my-contests"
           element={
@@ -109,6 +122,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/wallet"
           element={
@@ -117,6 +131,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -125,6 +140,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/leaderboard"
           element={
@@ -134,39 +150,6 @@ const App = () => {
           }
         />
 
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute adminOnly={true}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/matches"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminMatches />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminUsers />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/kyc"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminKYC />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/profile/kyc"
           element={
@@ -175,15 +158,54 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/matches"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminMatches />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminUsers />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/kyc"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminKYC />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin/withdrawals"
           element={
-            <ProtectedRoute adminOnly>
+            <ProtectedRoute adminOnly={true}>
               <AdminWithdrawals />
             </ProtectedRoute>
           }
         />
 
+        {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -21,7 +21,7 @@ const Wallet = () => {
   const [loading, setLoading] = useState(false);
   const [txLoading, setTxLoading] = useState(true);
 
-  const QUICK_AMOUNTS = [100, 500, 1000, 5000];
+  const QUICK_AMOUNTS = [10, 100, 500, 1000, 5000];
 
   useEffect(() => {
     walletService
@@ -42,7 +42,7 @@ const Wallet = () => {
       const { orderId, razorpayKey } = orderRes.data;
       const options = {
         key: razorpayKey || import.meta.env.VITE_RAZORPAY_KEY,
-        amount: amount * 100,
+        amount: amount * 10,
         currency: "INR",
         name: "Fantasy11",
         description: "Add Money to Wallet",
@@ -59,14 +59,14 @@ const Wallet = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch {
-      toast.error("Payment failed. Try again.");
+      toast.error("failed to add money ");
     } finally {
       setLoading(false);
     }
   };
 
   const handleWithdraw = async () => {
-    if (!amount || amount < 100) {
+    if (!amount || amount < 10) {
       toast.error("Minimum withdrawal ₹100");
       return;
     }
@@ -202,7 +202,7 @@ const Wallet = () => {
                 </span>
                 <input
                   type="number"
-                  placeholder="Min ₹100"
+                  placeholder="Min ₹10"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full bg-dark-300 border border-white/10 text-white placeholder-gray-600 pl-8 pr-4 py-3 rounded-xl focus:outline-none focus:border-primary-500"

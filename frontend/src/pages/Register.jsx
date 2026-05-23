@@ -125,7 +125,7 @@ const Register = () => {
                   </label>
                   <input
                     type="text"
-                    placeholder="Virat Kohli"
+                    placeholder="full name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
@@ -139,7 +139,7 @@ const Register = () => {
                   </label>
                   <input
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="email..."
                     value={form.email}
                     onChange={(e) =>
                       setForm({ ...form, email: e.target.value })
@@ -159,7 +159,7 @@ const Register = () => {
                     </span>
                     <input
                       type="tel"
-                      placeholder="9876543210"
+                      placeholder="xxxxxxxxxxx"
                       value={form.phone}
                       onChange={(e) =>
                         setForm({ ...form, phone: e.target.value })
@@ -178,7 +178,7 @@ const Register = () => {
                     </label>
                     <input
                       type="number"
-                      placeholder="25"
+                      placeholder="age"
                       min="18"
                       max="99"
                       value={form.age}

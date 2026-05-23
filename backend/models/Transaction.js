@@ -4,11 +4,7 @@ import sequelize from "../config/db.js";
 const Transaction = sequelize.define(
   "Transaction",
   {
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-
+    userId: { type: DataTypes.INTEGER(36), allowNull: false },
     type: {
       type: DataTypes.ENUM(
         "deposit",
@@ -20,28 +16,15 @@ const Transaction = sequelize.define(
       ),
       allowNull: false,
     },
-
-    amount: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-
+    amount: { type: DataTypes.FLOAT, allowNull: false },
     status: {
       type: DataTypes.ENUM("pending", "success", "failed"),
       defaultValue: "success",
     },
-
-    orderId: {
-      type: DataTypes.STRING,
-    },
-
-    note: {
-      type: DataTypes.STRING,
-    },
+    orderId: { type: DataTypes.STRING },
+    note: { type: DataTypes.STRING },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 export default Transaction;

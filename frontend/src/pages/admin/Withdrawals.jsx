@@ -17,9 +17,10 @@ const AdminWithdrawals = () => {
     api
       .get("/admin/withdrawals", { params: { status: filter } })
       .then((res) => {
-        setWithdrawals(res.data.withdrawals);
+        setWithdrawals(res.data.withdrawals || []);
         setTotalPending(res.data.totalPendingAmount || 0);
       })
+      .catch(() => setWithdrawals([]))
       .finally(() => setLoading(false));
   };
 
@@ -61,7 +62,6 @@ const AdminWithdrawals = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-6">
-        {/* Filter */}
         <div className="flex gap-2 mb-6">
           {["pending", "approved", "rejected"].map((f) => (
             <button
@@ -97,9 +97,9 @@ const AdminWithdrawals = () => {
                       "User",
                       "Amount",
                       "UPI ID",
-                      "Requested",
                       "TDS",
                       "Net Amount",
+                      "Date",
                       "Actions",
                     ].map((h) => (
                       <th
@@ -114,8 +114,8 @@ const AdminWithdrawals = () => {
                 <tbody>
                   {withdrawals.map((w) => (
                     <tr
-                      key={w._id}
-                      className="border-b border-white/5 hover:bg-white/2 transition-colors"
+                      key={w.id}
+                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
                     >
                       <td className="px-5 py-4">
                         <p className="text-white text-sm font-medium">
@@ -132,11 +132,6 @@ const AdminWithdrawals = () => {
                         <p className="text-gray-300 text-sm">{w.upiId}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-gray-400 text-sm">
-                          {formatDate(w.createdAt)}
-                        </p>
-                      </td>
-                      <td className="px-5 py-4">
                         <p className="text-red-400 text-sm">
                           {w.tdsAmount > 0
                             ? `-${formatCurrency(w.tdsAmount)}`
@@ -149,19 +144,24 @@ const AdminWithdrawals = () => {
                         </p>
                       </td>
                       <td className="px-5 py-4">
+                        <p className="text-gray-400 text-sm">
+                          {formatDate(w.createdAt)}
+                        </p>
+                      </td>
+                      <td className="px-5 py-4">
                         {filter === "pending" ? (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleProcess(w._id, "approve")}
-                              disabled={processing === w._id}
-                              className="bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-primary-500/30 disabled:opacity-50 transition-colors"
+                              onClick={() => handleProcess(w.id, "approve")}
+                              disabled={processing === w.id}
+                              className="bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-primary-500/30 disabled:opacity-50"
                             >
-                              {processing === w._id ? "..." : "✓ Approve"}
+                              {processing === w.id ? "..." : "✓ Approve"}
                             </button>
                             <button
-                              onClick={() => handleProcess(w._id, "reject")}
-                              disabled={processing === w._id}
-                              className="bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 disabled:opacity-50 transition-colors"
+                              onClick={() => handleProcess(w.id, "reject")}
+                              disabled={processing === w.id}
+                              className="bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-500/30 disabled:opacity-50"
                             >
                               ✕ Reject
                             </button>

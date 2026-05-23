@@ -33,11 +33,13 @@ const StatCard = ({ icon, label, value, sub, color = "text-primary-400" }) => (
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  console.log(stats);
 
   useEffect(() => {
     api
       .get("/admin/dashboard-stats")
-      .then((res) => setStats(res.data))
+
+      .then((res) => setStats(res?.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

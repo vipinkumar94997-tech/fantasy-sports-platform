@@ -4,7 +4,7 @@ import sequelize from "../config/db.js";
 const KYC = sequelize.define(
   "KYC",
   {
-    userId: { type: DataTypes.STRING, allowNull: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
     aadhaarNumber: { type: DataTypes.STRING },
     aadhaarImage: { type: DataTypes.TEXT("midium") },
     panNumber: { type: DataTypes.STRING },
