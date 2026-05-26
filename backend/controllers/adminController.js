@@ -3,6 +3,7 @@ import Match from "../models/Match.js";
 import Contest from "../models/Contest.js";
 import Transaction from "../models/Transaction.js";
 import Withdrawal from "../models/Withdrawal.js";
+import Wallet from "../models/Wallet.js";
 import { Op } from "sequelize";
 
 export const getDashboardStats = async (req, res) => {
@@ -22,16 +23,9 @@ export const getDashboardStats = async (req, res) => {
     const recentTransactions = await Transaction.findAll({
       limit: 5,
       order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: User,
-          as: "user",
-          attributes: ["id", "name"],
-        },
-      ],
+      include: [{ model: User, as: "user", attributes: ["id", "name"] }],
     });
 
-    // Last 7 days user growth
     const userGrowthChart = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
@@ -40,11 +34,9 @@ export const getDashboardStats = async (req, res) => {
       start.setHours(0, 0, 0, 0);
       const end = new Date(date);
       end.setHours(23, 59, 59, 999);
-
       const count = await User.count({
         where: { createdAt: { [Op.between]: [start, end] } },
       });
-
       userGrowthChart.push({
         date: start.toLocaleDateString("en-IN", {
           day: "2-digit",
@@ -54,7 +46,6 @@ export const getDashboardStats = async (req, res) => {
       });
     }
 
-    // Last 7 days revenue
     const revenueChart = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
@@ -63,15 +54,10 @@ export const getDashboardStats = async (req, res) => {
       start.setHours(0, 0, 0, 0);
       const end = new Date(date);
       end.setHours(23, 59, 59, 999);
-
       const revenue =
         (await Transaction.sum("amount", {
-          where: {
-            type: "deposit",
-            createdAt: { [Op.between]: [start, end] },
-          },
+          where: { type: "deposit", createdAt: { [Op.between]: [start, end] } },
         })) || 0;
-
       revenueChart.push({
         date: start.toLocaleDateString("en-IN", {
           day: "2-digit",
@@ -83,16 +69,13 @@ export const getDashboardStats = async (req, res) => {
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-
     const newUsersToday = await User.count({
       where: { createdAt: { [Op.gte]: todayStart } },
     });
-
     const todayRevenue =
       (await Transaction.sum("amount", {
         where: { type: "deposit", createdAt: { [Op.gte]: todayStart } },
       })) || 0;
-
     const pendingWithdrawals = await Withdrawal.count({
       where: { status: "pending" },
     });
@@ -126,7 +109,6 @@ export const getAllUsers = async (req, res) => {
   try {
     const { search = "", page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
-
     const where = search
       ? {
           [Op.or]: [
@@ -136,7 +118,6 @@ export const getAllUsers = async (req, res) => {
           ],
         }
       : {};
-
     const { count, rows } = await User.findAndCountAll({
       where,
       limit: parseInt(limit),
@@ -144,7 +125,6 @@ export const getAllUsers = async (req, res) => {
       order: [["createdAt", "DESC"]],
       attributes: { exclude: ["password"] },
     });
-
     res.json({ users: rows, total: count });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -168,6 +148,47 @@ export const getMatches = async (req, res) => {
     const matches = await Match.findAll({ order: [["createdAt", "DESC"]] });
     res.json({ matches });
   } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const addMatch = async (req, res) => {
+  try {
+    console.log("Match data:", req.body);
+    const {
+      sport,
+      venue,
+      matchTime,
+      team1Name,
+      team1ShortName,
+      team1Logo,
+      team2Name,
+      team2ShortName,
+      team2Logo,
+    } = req.body;
+
+    if (!sport || !venue || !matchTime || !team1Name || !team2Name) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const match = await Match.create({
+      sport,
+      venue,
+      matchTime,
+      status: "upcoming",
+      team1Name,
+      team1ShortName: team1ShortName || team1Name,
+      team1Logo: team1Logo || "",
+      team2Name,
+      team2ShortName: team2ShortName || team2Name,
+      team2Logo: team2Logo || "",
+      totalContests: 0,
+      totalPrize: 0,
+    });
+
+    res.status(201).json({ success: true, match });
+  } catch (err) {
+    console.error("Add Match Error:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -196,11 +217,7 @@ export const getAllTransactions = async (req, res) => {
       order: [["createdAt", "DESC"]],
       limit: 50,
       include: [
-        {
-          model: User,
-          as: "user",
-          attributes: ["id", "name", "phone"],
-        },
+        { model: User, as: "user", attributes: ["id", "name", "phone"] },
       ],
     });
     res.json({ transactions });
@@ -211,9 +228,7 @@ export const getAllTransactions = async (req, res) => {
 
 export const getAllContests = async (req, res) => {
   try {
-    const contests = await Contest.findAll({
-      order: [["createdAt", "DESC"]],
-    });
+    const contests = await Contest.findAll({ order: [["createdAt", "DESC"]] });
     res.json({ contests });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -234,12 +249,10 @@ export const getWithdrawals = async (req, res) => {
       ],
       order: [["createdAt", "DESC"]],
     });
-
     const totalPendingAmount =
       status === "pending"
         ? withdrawals.reduce((sum, w) => sum + w.amount, 0)
         : 0;
-
     res.json({ withdrawals, totalPendingAmount });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -255,22 +268,49 @@ export const processWithdrawal = async (req, res) => {
       return res.status(404).json({ message: "Withdrawal not found" });
 
     if (action === "approve") {
+      // Withdrawal approve karo
       await withdrawal.update({ status: "approved" });
+
+      // Transaction status update karo
+      await Transaction.update(
+        { status: "success" },
+        {
+          where: {
+            userId: withdrawal.userId,
+            type: "withdrawal",
+            status: "pending",
+          },
+        },
+      );
     } else {
-      const wallet = await (
-        await import("../models/Wallet.js")
-      ).default.findOne({
+      // Wallet mein paise wapas karo
+      const wallet = await Wallet.findOne({
         where: { userId: withdrawal.userId },
       });
       if (wallet) {
         wallet.balance += withdrawal.amount;
         await wallet.save();
       }
+
+      // Withdrawal reject karo
       await withdrawal.update({ status: "rejected", reason });
+
+      // Transaction status update karo
+      await Transaction.update(
+        { status: "failed" },
+        {
+          where: {
+            userId: withdrawal.userId,
+            type: "withdrawal",
+            status: "pending",
+          },
+        },
+      );
     }
 
-    res.json({ message: `Withdrawal ${action}ed` });
+    res.json({ message: `Withdrawal ${action}ed successfully` });
   } catch (err) {
+    console.error("Process withdrawal error:", err);
     res.status(500).json({ message: err.message });
   }
 };

@@ -96,6 +96,14 @@ const authSlice = createSlice({
       .addCase(getProfile.fulfilled, (state, action) => {
         state.user = action.payload.user;
         localStorage.setItem("user", JSON.stringify(action.payload.user));
+      })
+      .addCase(getProfile.rejected, (state) => {
+        // Profile fetch fail — token clear karo
+        state.user = null;
+        state.token = null;
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
       });
   },
 });
