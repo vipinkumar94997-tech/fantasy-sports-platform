@@ -131,6 +131,7 @@ const Login = () => {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
+          {/* <button onClick={handleGoogle}>Click</button> */}
 
           {/* <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/10" />
