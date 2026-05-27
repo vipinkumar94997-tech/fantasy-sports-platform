@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useWallet } from "../../hooks/useWallet";
-import { FiHome, FiUser, FiLogOut, FiBell, FiMenu, FiX } from "react-icons/fi";
+import { FiHome, FiLogOut, FiBell, FiMenu, FiX } from "react-icons/fi";
 import { GiCricketBat } from "react-icons/gi";
-import { formatCurrency } from "../../utils/helpers";
+import { formatCurrency, formatDate } from "../../utils/helpers";
+import api from "../../services/api";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -12,13 +14,47 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifRef = useRef(null);
 
   const navLinks = [
-    { path: "/home", label: "Matches", icon: <FiHome /> },
-    { path: "/my-contests", label: "My Contests", icon: null },
-    { path: "/my-teams", label: "My Teams", icon: null },
-    { path: "/leaderboard", label: "Leaderboard", icon: null },
+    { path: "/home", label: "Matches" },
+    { path: "/my-contests", label: "My Contests" },
+    { path: "/my-teams", label: "My Teams" },
+    { path: "/leaderboard", label: "Leaderboard" },
   ];
+
+  useEffect(() => {
+    if (isAuthenticated) fetchNotifications();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotif(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get("/notifications");
+      setNotifications(res.data.notifications || []);
+      setUnreadCount(res.data.unreadCount || 0);
+    } catch {}
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.put("/notifications/read-all");
+      setUnreadCount(0);
+      setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
+    } catch {}
+  };
 
   const handleLogout = () => {
     logout();
@@ -79,13 +115,89 @@ const Navbar = () => {
               </Link>
 
               {/* Notifications */}
-              <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
-                <FiBell className="text-xl" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary-500 rounded-full"></span>
-              </button>
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => {
+                    setShowNotif(!showNotif);
+                    if (!showNotif) fetchNotifications();
+                  }}
+                  className="relative p-2 text-gray-400 hover:text-white transition-colors"
+                >
+                  <FiBell className="text-xl" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notification Dropdown */}
+                {showNotif && (
+                  <div className="absolute right-0 top-12 w-80 bg-dark-200 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                      <h3 className="text-white font-bold text-sm">
+                        Notifications
+                      </h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-primary-400 text-xs hover:text-primary-300"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center">
+                          <p className="text-4xl mb-2">🔔</p>
+                          <p className="text-gray-400 text-sm">
+                            No notifications
+                          </p>
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            className={`px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
+                              !notif.isRead ? "bg-primary-500/5" : ""
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className="text-lg flex-shrink-0">
+                                {notif.type === "success"
+                                  ? "✅"
+                                  : notif.type === "warning"
+                                    ? "⚠️"
+                                    : notif.type === "error"
+                                      ? "❌"
+                                      : "ℹ️"}
+                              </span>
+                              <div className="flex-1">
+                                <p className="text-white text-sm font-semibold">
+                                  {notif.title}
+                                </p>
+                                <p className="text-gray-400 text-xs mt-0.5">
+                                  {notif.message}
+                                </p>
+                                <p className="text-gray-600 text-xs mt-1">
+                                  {formatDate(notif.createdAt)}
+                                </p>
+                              </div>
+                              {!notif.isRead && (
+                                <span className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0 mt-1" />
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Profile */}
-              <Link to="/profile" className="flex items-center gap-2">
+              <Link to="/profile">
                 <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-bold">
                   {user?.name?.[0]?.toUpperCase() || "U"}
                 </div>
@@ -103,20 +215,20 @@ const Navbar = () => {
             <div className="flex items-center gap-3">
               <Link
                 to="/login"
-                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+                className="text-gray-400 hover:text-white text-sm font-medium"
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                className="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2 rounded-lg"
               >
                 Register
               </Link>
             </div>
           )}
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu */}
           {isAuthenticated && (
             <button
               className="md:hidden text-gray-400 hover:text-white"
@@ -140,11 +252,7 @@ const Navbar = () => {
               key={link.path}
               to={link.path}
               onClick={() => setMenuOpen(false)}
-              className={`text-sm font-medium ${
-                location.pathname === link.path
-                  ? "text-primary-500"
-                  : "text-gray-400"
-              }`}
+              className={`text-sm font-medium ${location.pathname === link.path ? "text-primary-500" : "text-gray-400"}`}
             >
               {link.label}
             </Link>

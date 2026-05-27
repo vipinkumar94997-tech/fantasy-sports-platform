@@ -4,6 +4,7 @@ import Contest from "../models/Contest.js";
 import Transaction from "../models/Transaction.js";
 import Withdrawal from "../models/Withdrawal.js";
 import Wallet from "../models/Wallet.js";
+import KYC from "../models/KYC.js";
 import { Op } from "sequelize";
 
 export const getDashboardStats = async (req, res) => {
@@ -13,6 +14,7 @@ export const getDashboardStats = async (req, res) => {
     const totalContests = await Contest.count();
     const totalRevenue =
       (await Transaction.sum("amount", { where: { type: "deposit" } })) || 0;
+    const kycPending = await KYC.count({ where: { status: "pending" } });
 
     const recentUsers = await User.findAll({
       limit: 5,
@@ -91,7 +93,7 @@ export const getDashboardStats = async (req, res) => {
       newUsersToday,
       pendingWithdrawals,
       pendingAmount,
-      kycPending: 0,
+      kycPending,
       totalTeams: 0,
       totalPrizeDistributed: 0,
       recentUsers,
@@ -154,7 +156,6 @@ export const getMatches = async (req, res) => {
 
 export const addMatch = async (req, res) => {
   try {
-    console.log("Match data:", req.body);
     const {
       sport,
       venue,
@@ -167,9 +168,8 @@ export const addMatch = async (req, res) => {
       team2Logo,
     } = req.body;
 
-    if (!sport || !venue || !matchTime || !team1Name || !team2Name) {
+    if (!sport || !venue || !matchTime || !team1Name || !team2Name)
       return res.status(400).json({ message: "All fields are required" });
-    }
 
     const match = await Match.create({
       sport,
@@ -188,7 +188,6 @@ export const addMatch = async (req, res) => {
 
     res.status(201).json({ success: true, match });
   } catch (err) {
-    console.error("Add Match Error:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -263,15 +262,11 @@ export const processWithdrawal = async (req, res) => {
   try {
     const { action, reason } = req.body;
     const withdrawal = await Withdrawal.findByPk(req.params.id);
-
     if (!withdrawal)
       return res.status(404).json({ message: "Withdrawal not found" });
 
     if (action === "approve") {
-      // Withdrawal approve karo
       await withdrawal.update({ status: "approved" });
-
-      // Transaction status update karo
       await Transaction.update(
         { status: "success" },
         {
@@ -283,7 +278,6 @@ export const processWithdrawal = async (req, res) => {
         },
       );
     } else {
-      // Wallet mein paise wapas karo
       const wallet = await Wallet.findOne({
         where: { userId: withdrawal.userId },
       });
@@ -291,11 +285,7 @@ export const processWithdrawal = async (req, res) => {
         wallet.balance += withdrawal.amount;
         await wallet.save();
       }
-
-      // Withdrawal reject karo
       await withdrawal.update({ status: "rejected", reason });
-
-      // Transaction status update karo
       await Transaction.update(
         { status: "failed" },
         {
@@ -307,7 +297,6 @@ export const processWithdrawal = async (req, res) => {
         },
       );
     }
-
     res.json({ message: `Withdrawal ${action}ed successfully` });
   } catch (err) {
     console.error("Process withdrawal error:", err);

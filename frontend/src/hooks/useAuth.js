@@ -12,7 +12,7 @@ export const useAuth = () => {
   return {
     user,
     token,
-    loading: false,
+    loading,
     isAuthenticated: !!token,
     logout: handleLogout,
   };

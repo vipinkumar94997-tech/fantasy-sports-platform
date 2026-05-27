@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../../services/api";
 import Loader from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/helpers";
+import toast from "react-hot-toast";
 import {
   LineChart,
   Line,
@@ -33,16 +34,34 @@ const StatCard = ({ icon, label, value, sub, color = "text-primary-400" }) => (
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  console.log(stats);
+  const [notifForm, setNotifForm] = useState({
+    title: "",
+    message: "",
+    type: "info",
+  });
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     api
       .get("/admin/dashboard-stats")
-
       .then((res) => setStats(res?.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const sendNotification = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      await api.post("/notifications/send-all", notifForm);
+      toast.success("Notification sent to all users!");
+      setNotifForm({ title: "", message: "", type: "info" });
+    } catch {
+      toast.error("Failed to send notification");
+    } finally {
+      setSending(false);
+    }
+  };
 
   if (loading)
     return (
@@ -133,9 +152,8 @@ const AdminDashboard = () => {
             />
           </div>
 
-          {/* Charts Row */}
+          {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Revenue Chart */}
             <div className="card p-5">
               <h3 className="text-white font-bold mb-4">
                 Revenue (Last 7 Days)
@@ -170,7 +188,6 @@ const AdminDashboard = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* User Growth Chart */}
             <div className="card p-5">
               <h3 className="text-white font-bold mb-4">
                 User Registrations (Last 7 Days)
@@ -199,7 +216,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Quick Stats Row */}
+          {/* Quick Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="card p-4 text-center">
               <p className="text-gray-400 text-xs mb-1">KYC Pending</p>
@@ -228,7 +245,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Recent Users */}
             <div className="card p-5">
               <div className="flex items-center justify-between mb-4">
@@ -253,7 +270,11 @@ const AdminDashboard = () => {
                       <p className="text-gray-500 text-xs">{user.phone}</p>
                     </div>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${user.kycStatus === "verified" ? "bg-primary-500/20 text-primary-400" : "bg-yellow-500/20 text-yellow-400"}`}
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        user.kycStatus === "verified"
+                          ? "bg-primary-500/20 text-primary-400"
+                          : "bg-yellow-500/20 text-yellow-400"
+                      }`}
                     >
                       {user.kycStatus === "verified" ? "KYC ✓" : "Pending"}
                     </span>
@@ -272,7 +293,7 @@ const AdminDashboard = () => {
                   <div key={i} className="flex items-center justify-between">
                     <div>
                       <p className="text-white text-sm font-medium">
-                        {tx.userName}
+                        {tx.user?.name || tx.userName}
                       </p>
                       <p className="text-gray-500 text-xs capitalize">
                         {tx.type?.replace("_", " ")}
@@ -294,6 +315,54 @@ const AdminDashboard = () => {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Send Notification */}
+          <div className="card p-5">
+            <h3 className="text-white font-bold mb-4">
+              📢 Send Notification to All Users
+            </h3>
+            <form onSubmit={sendNotification} className="space-y-3">
+              <input
+                type="text"
+                placeholder="Notification Title"
+                value={notifForm.title}
+                onChange={(e) =>
+                  setNotifForm({ ...notifForm, title: e.target.value })
+                }
+                required
+                className="w-full bg-dark-300 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-primary-500"
+              />
+              <textarea
+                placeholder="Notification Message"
+                value={notifForm.message}
+                onChange={(e) =>
+                  setNotifForm({ ...notifForm, message: e.target.value })
+                }
+                required
+                rows={3}
+                className="w-full bg-dark-300 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-primary-500"
+              />
+              <select
+                value={notifForm.type}
+                onChange={(e) =>
+                  setNotifForm({ ...notifForm, type: e.target.value })
+                }
+                className="w-full bg-dark-300 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-primary-500"
+              >
+                <option value="info">ℹ️ Info</option>
+                <option value="success">✅ Success</option>
+                <option value="warning">⚠️ Warning</option>
+                <option value="error">❌ Error</option>
+              </select>
+              <button
+                type="submit"
+                disabled={sending}
+                className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
+              >
+                {sending ? "Sending..." : "📢 Send to All Users"}
+              </button>
+            </form>
           </div>
         </div>
       </div>

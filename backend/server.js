@@ -23,6 +23,7 @@ import walletRoutes from "./routes/walletRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import kycRoutes from "./routes/kycRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -73,6 +74,7 @@ app.use("/api/wallet", walletRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/kyc", kycRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {

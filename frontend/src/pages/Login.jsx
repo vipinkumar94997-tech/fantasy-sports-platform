@@ -14,12 +14,35 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const res = await dispatch(loginUser(form));
+  //   console.log("Login response:", res.payload);
+  //   if (res.meta.requestStatus === "fulfilled") {
+  //     toast.success("Welcome back! 🏏");
+  //     if (res.payload.user?.role === "admin") {
+  //       navigate("admin");
+  //     } else {
+  //       navigate("/home");
+  //     }
+  //   } else {
+  //     toast.error(res.payload || "Login failed");
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const res = await dispatch(loginUser(form));
+    console.log("Login response:", res.payload); // ye add karo
     if (res.meta.requestStatus === "fulfilled") {
       toast.success("Welcome back! 🏏");
-      navigate("/home");
+      const role = res.payload?.user?.role;
+      console.log("User role:", role); // ye add karo
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
     } else {
       toast.error(res.payload || "Login failed");
     }

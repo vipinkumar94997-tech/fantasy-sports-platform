@@ -75,13 +75,8 @@ User.hasMany(Leaderboard, {
 });
 
 // ================= Notification =================
-Notification.belongsTo(User, {
-  foreignKey: "userId",
-});
-
-User.hasMany(Notification, {
-  foreignKey: "userId",
-});
+Notification.belongsTo(User, { foreignKey: "userId", as: "user" });
+User.hasMany(Notification, { foreignKey: "userId" });
 
 // ================= Referral =================
 Referral.belongsTo(User, {
