@@ -15,7 +15,7 @@ const PlayerCard = ({
   onSetViceCaptain,
   captainMode,
 }) => {
-  const { _id, name, role, credits, team, image, points, selectionPercent } =
+  const { id, name, role, credits, team, image, points, selectionPercent } =
     player;
 
   return (
@@ -79,7 +79,7 @@ const PlayerCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onSetCaptain(_id);
+              onSetCaptain(id);
             }}
             className={`flex-1 py-1 text-xs font-bold rounded-lg border transition-colors ${
               captain
@@ -92,7 +92,7 @@ const PlayerCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onSetViceCaptain(_id);
+              onSetViceCaptain(id);
             }}
             className={`flex-1 py-1 text-xs font-bold rounded-lg border transition-colors ${
               viceCaptain

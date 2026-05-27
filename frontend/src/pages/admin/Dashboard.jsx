@@ -76,7 +76,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Top Bar */}
-      <div className="bg-dark-200 border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <div className="bg-dark-200 border-b border-white/10 px-10 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/home" className="text-gray-400 hover:text-white text-sm">
             ← Back to App

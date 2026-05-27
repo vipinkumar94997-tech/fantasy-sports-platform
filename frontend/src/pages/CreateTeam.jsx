@@ -36,7 +36,7 @@ const CreateTeam = () => {
   const getRoleCount = (role) => selected.filter((p) => p.role === role).length;
 
   const canSelect = (player) => {
-    if (selected.find((p) => p._id === player._id)) return true;
+    if (selected.find((p) => p.id === player.id)) return true;
     if (selected.length >= TEAM_RULES.TOTAL_PLAYERS) return false;
     if (creditsLeft < player.credits) return false;
     const sameTeam = selected.filter((p) => p.team === player.team).length;
@@ -51,7 +51,7 @@ const CreateTeam = () => {
   };
 
   const togglePlayer = (player) => {
-    if (selected.find((p) => p._id === player._id)) {
+    if (selected.find((p) => p.id === player.id)) {
       setSelected(selected.filter((p) => p._id !== player._id));
       if (captain === player._id) setCaptain(null);
       if (viceCaptain === player._id) setViceCaptain(null);
@@ -209,7 +209,7 @@ const CreateTeam = () => {
                 <PlayerCard
                   key={player._id}
                   player={player}
-                  selected={!!selected.find((p) => p._id === player._id)}
+                  selected={!!selected.find((p) => p.id === player.id)}
                   captain={captain === player._id}
                   viceCaptain={viceCaptain === player._id}
                   captainMode={false}
