@@ -1,7 +1,7 @@
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
+import { Op } from "sequelize";
 
-// User ki notifications
 export const getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.findAll({
@@ -18,7 +18,6 @@ export const getNotifications = async (req, res) => {
   }
 };
 
-// Notification read mark karo
 export const markAsRead = async (req, res) => {
   try {
     await Notification.update(
@@ -31,7 +30,6 @@ export const markAsRead = async (req, res) => {
   }
 };
 
-// Single notification read karo
 export const markOneAsRead = async (req, res) => {
   try {
     await Notification.update(
@@ -44,7 +42,30 @@ export const markOneAsRead = async (req, res) => {
   }
 };
 
-// Admin — Sabko notification bhejo
+export const clearAll = async (req, res) => {
+  try {
+    await Notification.destroy({ where: { userId: req.user.id } });
+    res.json({ message: "All notifications cleared" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteSelected = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || ids.length === 0)
+      return res.status(400).json({ message: "No ids provided" });
+
+    await Notification.destroy({
+      where: { id: { [Op.in]: ids }, userId: req.user.id },
+    });
+    res.json({ message: "Selected notifications deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const sendToAll = async (req, res) => {
   try {
     const { title, message, type = "info" } = req.body;
@@ -67,7 +88,6 @@ export const sendToAll = async (req, res) => {
   }
 };
 
-// Admin — Single user ko notification bhejo
 export const sendToUser = async (req, res) => {
   try {
     const { userId, title, message, type = "info" } = req.body;

@@ -24,6 +24,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import kycRoutes from "./routes/kycRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import playerRoutes from "./routes/playerRoutes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -75,6 +76,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/kyc", kycRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/players", playerRoutes);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
