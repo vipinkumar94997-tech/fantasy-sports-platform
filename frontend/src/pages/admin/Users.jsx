@@ -30,7 +30,7 @@ const AdminUsers = () => {
 
   const handleBan = async (id, banned) => {
     try {
-      await api.put(`/admin/users/${id}`, { banned: !banned });
+      await api.put(`/admin/users/${id}`, { banned: banned });
       toast.success(banned ? "User unbanned" : "User banned");
       fetchUsers();
     } catch {

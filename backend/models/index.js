@@ -1,5 +1,4 @@
 import User from "./User.js";
-import Match from "./Match.js";
 import Player from "./Player.js";
 import Wallet from "./Wallet.js";
 import Transaction from "./Transaction.js";
@@ -12,6 +11,14 @@ import Notification from "./Notification.js";
 import PromoCode from "./PromoCode.js";
 import Referral from "./Referral.js";
 import OTP from "./OTP.js";
+import Team from "./Team.js";
+import Match from "./Match.js";
+
+//Team
+Team.belongsTo(User, { foreignKey: "userId", as: "user" });
+Team.belongsTo(Match, { foreignKey: "matchId", as: "match" });
+User.hasMany(Team, { foreignKey: "userId" });
+Match.hasMany(Team, { foreignKey: "matchId" });
 
 // ================= KYC =================
 KYC.belongsTo(User, { foreignKey: "userId", as: "user" });

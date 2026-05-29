@@ -30,13 +30,13 @@ const CreateTeam = () => {
 
         const res = await matchService.getPlayers(matchId);
 
-        console.log("Players API Response:", res.data);
+        // console.log("Players API Response:", res.data);
 
         // different possible response formats handle karo
         const playersData =
           res.data?.players || res.data?.data || res.data || [];
 
-        console.log("Players Data:", playersData);
+        // console.log("Players Data:", playersData);
 
         setPlayers(Array.isArray(playersData) ? playersData : []);
       } catch (error) {
@@ -151,8 +151,8 @@ const CreateTeam = () => {
       await teamService.create({
         matchId,
         players: selected.map((p) => p.id),
-        captain,
-        viceCaptain,
+        captainId: captain,
+        viceCaptainId: viceCaptain,
       });
 
       toast.success("Team created successfully 🎉");
@@ -171,8 +171,8 @@ const CreateTeam = () => {
     (player) => roleFilter === "ALL" || player.role === roleFilter,
   );
 
-  console.log("All Players:", players);
-  console.log("Filtered Players:", filtered);
+  // console.log("All Players:", players);
+  // console.log("Filtered Players:", filtered);
 
   if (loading) {
     return (

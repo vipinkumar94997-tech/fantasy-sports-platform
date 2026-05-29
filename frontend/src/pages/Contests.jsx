@@ -69,7 +69,7 @@ const Contests = () => {
         ) : (
           <div className="space-y-4">
             {filtered.map((c) => (
-              <ContestCard key={c._id} contest={c} matchId={matchId} />
+              <ContestCard key={c.id} contest={c} matchId={matchId} />
             ))}
           </div>
         )}

@@ -4,7 +4,7 @@ import { formatCurrency } from "../../utils/helpers";
 const ContestCard = ({ contest, matchId }) => {
   const navigate = useNavigate();
   const {
-    _id,
+    id,
     name,
     type,
     entryFee,
@@ -73,7 +73,7 @@ const ContestCard = ({ contest, matchId }) => {
           </p>
         </div>
         <button
-          onClick={() => navigate(`/contest/${_id}`, { state: { matchId } })}
+          onClick={() => navigate(`/contest/${id}`, { state: { matchId } })}
           className="bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold px-5 py-2 rounded-lg transition-colors"
         >
           Join

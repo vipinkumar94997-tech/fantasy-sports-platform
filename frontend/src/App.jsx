@@ -30,6 +30,7 @@ import AdminMatches from "./pages/admin/Matches";
 import AdminUsers from "./pages/admin/Users";
 import AdminKYC from "./pages/admin/KYC";
 import AdminWithdrawals from "./pages/admin/Withdrawals";
+// import Main from "./components/Main";
 
 // Public routes
 const publicRoutes = [

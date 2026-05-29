@@ -22,7 +22,8 @@ router.get("/dashboard-stats", protect, adminOnly, getDashboardStats);
 
 router.get("/users", protect, adminOnly, getAllUsers);
 
-router.put("/users/:id/ban", protect, adminOnly, toggleBanUser);
+// router.put("/users/:id/ban", protect, adminOnly, toggleBanUser);
+router.put("/users/:id", protect, adminOnly, toggleBanUser);
 
 router.post("/matches/add", protect, adminOnly, addMatch);
 

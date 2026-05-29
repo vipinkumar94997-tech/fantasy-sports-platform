@@ -6,14 +6,20 @@ import Withdrawal from "../models/Withdrawal.js";
 import Wallet from "../models/Wallet.js";
 import KYC from "../models/KYC.js";
 import { Op } from "sequelize";
+import Team from "../models/Team.js";
 
 export const getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.count();
     const totalMatches = await Match.count();
     const totalContests = await Contest.count();
+    const totalTeams = await Team.count();
     const totalRevenue =
       (await Transaction.sum("amount", { where: { type: "deposit" } })) || 0;
+    const totalPrizeDistributed =
+      (await Transaction.sum("amount", {
+        where: { type: "winning" },
+      })) || 0;
     const kycPending = await KYC.count({ where: { status: "pending" } });
 
     const recentUsers = await User.findAll({
@@ -94,8 +100,8 @@ export const getDashboardStats = async (req, res) => {
       pendingWithdrawals,
       pendingAmount,
       kycPending,
-      totalTeams: 0,
-      totalPrizeDistributed: 0,
+      totalTeams,
+      totalPrizeDistributed,
       recentUsers,
       recentTransactions,
       revenueChart,
@@ -133,15 +139,54 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// export const toggleBanUser = async (req, res) => {
+//   console.log(req.user.id);
+//   return;
+//   try {
+//     const user = await User.findbyIdAndUpdate(req.params.id, { new: true });
+//     if (!user) return res.status(404).json({ message: "User not found" });
+//     user.banned = !user.banned;
+//     await user.save();
+//     res.json({ message: `User ${user.banned ? "banned" : "unbanned"}` });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const toggleBanUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Admin ko ban nahi karna
+    if (user.role === "admin") {
+      return res.status(403).json({
+        message: "Admin cannot be banned",
+      });
+    }
+
+    // Toggle banned status
     user.banned = !user.banned;
+
     await user.save();
-    res.json({ message: `User ${user.banned ? "banned" : "unbanned"}` });
+
+    res.json({
+      message: user.banned
+        ? "User banned successfully"
+        : "User unbanned successfully",
+      user,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 

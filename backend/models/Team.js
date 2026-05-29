@@ -24,6 +24,11 @@ const Team = sequelize.define(
       allowNull: false,
     },
 
+    players: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+
     teamNumber: {
       type: DataTypes.INTEGER,
       defaultValue: 1,
