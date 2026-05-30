@@ -180,10 +180,10 @@ const ContestDetail = () => {
             <div className="space-y-3">
               {myTeams.map((team) => (
                 <div
-                  key={team._id}
-                  onClick={() => setSelectedTeam(team._id)}
+                  key={team.id}
+                  onClick={() => setSelectedTeam(team.id)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    selectedTeam === team._id
+                    selectedTeam === team.id
                       ? "border-primary-500 bg-primary-500/10"
                       : "border-white/10 hover:border-white/20"
                   }`}
@@ -197,7 +197,7 @@ const ContestDetail = () => {
                         C: {team.captainName} · VC: {team.viceCaptainName}
                       </p>
                     </div>
-                    {selectedTeam === team._id && (
+                    {selectedTeam === team.id && (
                       <span className="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center text-white text-xs">
                         ✓
                       </span>

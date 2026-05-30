@@ -6,6 +6,7 @@ import { authService } from "../services/authService";
 import toast from "react-hot-toast";
 import { GiCricketBat } from "react-icons/gi";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -76,13 +77,11 @@ const Login = () => {
 
         <div className="card p-8">
           <h2 className="text-white font-bold text-2xl mb-6">Login</h2>
-
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg mb-5">
               {error}
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-gray-400 text-sm mb-1.5 block">
@@ -131,14 +130,12 @@ const Login = () => {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-          {/* <button onClick={handleGoogle}>Click</button> */}
 
-          {/* <div className="flex items-center gap-3 my-5">
+          <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/10" />
             <span className="text-gray-600 text-sm">or</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
-
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogle}
@@ -147,8 +144,7 @@ const Login = () => {
               shape="rectangular"
               width="100%"
             />
-          </div> */}
-
+          </div>
           <p className="text-center text-gray-500 text-sm mt-6">
             New here?{" "}
             <Link

@@ -20,7 +20,7 @@ const Leaderboard = () => {
         const lb = res.data.leaderboard || [];
         setData(lb);
         const me = lb.find(
-          (u) => u.userId === user?.id || u.userId === user?._id,
+          (u) => u.userId === user?.id || u.userId === user?.id,
         );
         if (me) setMyRank(me);
       })
@@ -183,7 +183,7 @@ const Leaderboard = () => {
                 <div
                   key={entry.userId}
                   className={`card p-4 flex items-center gap-4 ${
-                    entry.userId === user?.id || entry.userId === user?._id
+                    entry.userId === user?.id || entry.userId === user?.id
                       ? "border-primary-500/40"
                       : ""
                   }`}
@@ -223,7 +223,7 @@ const Leaderboard = () => {
                         {entry.userName}
                       </p>
                       {(entry.userId === user?.id ||
-                        entry.userId === user?._id) && (
+                        entry.userId === user?.id) && (
                         <span className="text-primary-400 text-xs bg-primary-500/20 px-2 py-0.5 rounded-full">
                           You
                         </span>
