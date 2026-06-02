@@ -6,6 +6,11 @@ import {
   refreshToken,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import User from "../models/User.js";
+import Match from "../models/Match.js";
+import Contest from "../models/Contest.js";
+import ContestEntry from "../models/ContestEntry.js";
+import { Op } from "sequelize";
 
 const router = express.Router();
 
@@ -18,6 +23,26 @@ router.put("/profile", protect, async (req, res) => {
     const { name, email, phone } = req.body;
     await User.update({ name, email, phone }, { where: { id: req.user.id } });
     res.json({ message: "Profile updated" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get("/public-stats", async (req, res) => {
+  try {
+    const totalUsers = await User.count();
+    const totalMatches = await Match.count();
+    const totalContests = await Contest.count();
+    const totalWinners = await ContestEntry.count({
+      where: { winning: { [Op.gt]: 0 } },
+    });
+    res.json({
+      totalUsers,
+      totalMatches,
+      totalContests,
+      totalWinners,
+      dailyPrizePool: "₹10 Crore",
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
