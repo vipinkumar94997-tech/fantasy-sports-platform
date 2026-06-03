@@ -7,6 +7,7 @@ import Wallet from "../models/Wallet.js";
 import KYC from "../models/KYC.js";
 import { Op } from "sequelize";
 import Team from "../models/Team.js";
+import { sendEmail } from "../services/emailService.js";
 
 export const getDashboardStats = async (req, res) => {
   try {

@@ -234,7 +234,7 @@ const Landing = () => {
               title: "Head to Head",
               prize: "₹180",
               entry: "₹99",
-              spots: "2",
+              spots: "100",
             },
           ].map((contest, i) => (
             <div
@@ -293,15 +293,15 @@ const Landing = () => {
             Fantasy<span className="text-primary-500">11</span>
           </span>
         </div>
-        <p className="text-gray-600 text-sm mb-4">
+        <p className="text-gray-500 text-sm mb-4">
           © 2025 Fantasy11 · This game involves an element of financial risk.
           Play responsibly. 18+ only.
         </p>
         <div className="flex justify-center gap-6 flex-wrap">
           {[
-            { label: "Terms", path: "/terms" },
-            { label: "Privacy", path: "/privacy" },
-            { label: "Responsible Gaming", path: "/responsible-gaming" },
+            { label: "Terms", path: "/login/terms" },
+            { label: "Privacy", path: "/login/privacy" },
+            { label: "Responsible Gaming", path: "/login/responsible-gaming" },
           ].map((link) => (
             <Link
               key={link.path}
