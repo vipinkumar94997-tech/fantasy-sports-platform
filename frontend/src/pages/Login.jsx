@@ -33,12 +33,23 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const res = await dispatch(loginUser(form));
-    console.log("Login response:", res.payload); // ye add karo
+
+    console.log("Login response:", res.payload);
+
     if (res.meta.requestStatus === "fulfilled") {
+      localStorage.setItem("token", res.payload.token);
+
+      // SAVE USER
+      localStorage.setItem("user", JSON.stringify(res.payload.user));
+
       toast.success("Welcome back! 🏏");
+
       const role = res.payload?.user?.role;
-      console.log("User role:", role); // ye add karo
+
+      console.log("User role:", role);
+
       if (role === "admin") {
         navigate("/admin");
       } else {

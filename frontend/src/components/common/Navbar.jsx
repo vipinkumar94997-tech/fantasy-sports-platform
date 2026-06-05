@@ -27,6 +27,16 @@ const Navbar = () => {
     { path: "/leaderboard", label: "Leaderboard" },
   ];
 
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get("/notifications");
+      setNotifications(res.data.notifications || []);
+      setUnreadCount(res.data.unreadCount || 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) fetchNotifications();
   }, [isAuthenticated]);
@@ -43,20 +53,14 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get("/notifications");
-      setNotifications(res.data.notifications || []);
-      setUnreadCount(res.data.unreadCount || 0);
-    } catch {}
-  };
-
   const handleMarkAllRead = async () => {
     try {
       await api.put("/notifications/read-all");
       setUnreadCount(0);
       setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
-    } catch {}
+    } catch (error) {
+      console.log("MarkAllRead:", error);
+    }
   };
 
   const handleClearAll = async () => {
@@ -66,7 +70,9 @@ const Navbar = () => {
       setUnreadCount(0);
       setSelectedNotifs([]);
       setSelectMode(false);
-    } catch {}
+    } catch (error) {
+      console.log("clearAll:", error);
+    }
   };
 
   const handleDeleteSelected = async () => {
@@ -79,7 +85,9 @@ const Navbar = () => {
       );
       setSelectedNotifs([]);
       setSelectMode(false);
-    } catch {}
+    } catch (error) {
+      console.log("DeleteSelected:", error);
+    }
   };
 
   const toggleSelect = (id) => {
@@ -138,7 +146,7 @@ const Navbar = () => {
               {/* Wallet */}
               <Link
                 to="/wallet"
-                className="hidden md:flex items-center gap-2 bg-primary-600/20 border border-primary-500/30 px-3 py-1.5 rounded-lg"
+                className="hidden md:flex items-center gap-2 bg-primary-600/20 border border-primary-500/30 px- py-1.5 rounded-lg"
               >
                 <span className="text-primary-400 text-xs">💰</span>
                 <span className="text-primary-400 font-semibold text-sm">
@@ -175,13 +183,13 @@ const Navbar = () => {
 
                 {/* Notification Dropdown */}
                 {showNotif && (
-                  <div className="absolute right-0 top-12 w-80 bg-dark-200 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="absolute right-0 top-12 w-72 bg-dark-200 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                    <div className=" flex items-center justify-between px-4 py-3 border-b border-white/10">
                       <h3 className="text-white font-bold text-sm">
                         Notifications
                       </h3>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         {notifications.length > 0 && (
                           <button
                             onClick={() => {
@@ -218,7 +226,7 @@ const Navbar = () => {
 
                     {/* Select Mode Bar */}
                     {selectMode && notifications.length > 0 && (
-                      <div className="flex items-center justify-between px-4 py-2 bg-dark-300/50 border-b border-white/5">
+                      <div className="flex items-center justify-between px-4 py-2 bg-dark-300/50 border-b border-white/5 ">
                         <button
                           onClick={handleSelectAll}
                           className="text-xs text-primary-400 hover:text-primary-300 font-semibold"

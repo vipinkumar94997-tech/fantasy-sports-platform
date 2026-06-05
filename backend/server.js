@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import paymentRoutes from "./routes/paymentRoutes.js";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -77,6 +78,7 @@ app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/kyc", kycRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/players", playerRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {

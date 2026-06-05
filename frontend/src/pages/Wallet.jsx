@@ -6,6 +6,7 @@ import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
 import { formatCurrency, formatDate, calculateTDS } from "../utils/helpers";
 import toast from "react-hot-toast";
+// import axios from "axios";
 
 const TABS = ["Add Money", "Withdraw", "Transactions"];
 
@@ -14,12 +15,15 @@ const Wallet = () => {
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") === "withdraw" ? "Withdraw" : "Add Money",
   );
+
   const { balance, bonusBalance, totalBalance, refresh } = useWallet();
+
   const [amount, setAmount] = useState("");
   const [upi, setUpi] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [txLoading, setTxLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const QUICK_AMOUNTS = [10, 100, 500, 1000, 5000];
 
@@ -31,23 +35,157 @@ const Wallet = () => {
       .finally(() => setTxLoading(false));
   }, []);
 
+  // UPDATED FUNCTION
+  // const handleAddMoney = async () => {
+  //   if (!amount || amount < 10) {
+  //     toast.error("Minimum ₹10 required");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     // ORDER CREATE API
+  //     const { data } = await axios.post(
+  //       "http://localhost:8000/api/payment/create-order",
+  //       {
+  //         amount: Number(amount),
+  //       },
+  //     );
+
+  //     console.log("ORDER:", data);
+
+  //     const options = {
+  //       key: "rzp_test_xxxxx", // apni razorpay test key
+
+  //       amount: data.amount,
+
+  //       currency: data.currency,
+
+  //       order_id: data.id,
+
+  //       name: "Fantasy11",
+
+  //       description: "Wallet Add Money",
+
+  //       handler: async function (response) {
+  //         console.log("PAYMENT SUCCESS:", response);
+
+  //         // WALLET UPDATE
+  //         await walletService.addMoney({
+  //           amount: Number(amount),
+  //         });
+
+  //         toast.success(`₹${amount} added to wallet!`);
+
+  //         refresh();
+
+  //         setAmount("");
+  //       },
+
+  //       modal: {
+  //         ondismiss: function () {
+  //           console.log("Payment popup closed");
+  //         },
+  //       },
+
+  //       theme: {
+  //         color: "#22c55e",
+  //       },
+  //     };
+
+  //     const razorpay = new window.Razorpay(options);
+
+  //     razorpay.open();
+  //   } catch (err) {
+  //     console.log("PAYMENT ERROR:", err);
+
+  //     toast.error("Payment failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleAddMoney = async () => {
-    if (!amount || amount < 10) {
+    if (!amount || Number(amount) < 10) {
       toast.error("Minimum ₹10 required");
       return;
     }
     setLoading(true);
     try {
-      await walletService.addMoney({ amount: Number(amount) });
-      toast.success(`₹${amount} added to wallet!`);
-      refresh();
-      setAmount("");
+      // Backend se order create karo
+      const orderRes = await walletService.addMoney({ amount: Number(amount) });
+      const { orderId } = orderRes.data;
+
+      // Razorpay checkout options
+      const options = {
+        key: "rzp_test_yCaEJmoMTJU3NT",
+        amount: Number(amount) * 100,
+        currency: "INR",
+        name: "Fantasy11",
+        description: "Add Money to Wallet",
+        // image: "/logo.png",
+        order_id: orderId,
+        handler: async (response) => {
+          try {
+            // Payment verify karo
+            const verifyRes = await walletService.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: Number(amount) * 100,
+            });
+            toast.success(`₹${amount} added successfully!`);
+            refresh();
+            setAmount("");
+            // Transactions reload karo
+            walletService
+              .getTransactions()
+              .then((res) => setTransactions(res.data.transactions || []));
+          } catch (err) {
+            toast.error("Payment verification failed. Contact support.");
+          }
+        },
+        prefill: {
+          name: user?.name || "",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        notes: {
+          purpose: "Fantasy11 Wallet Top-up",
+        },
+        theme: {
+          color: "#16a34a",
+        },
+        modal: {
+          ondismiss: () => {
+            toast.error("Payment cancelled");
+            setLoading(false);
+          },
+          escape: true,
+          backdropclose: false,
+        },
+      };
+
+      // Razorpay open karo
+      if (!window.Razorpay) {
+        toast.error("Razorpay not loaded. Please refresh the page.");
+        setLoading(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+
+      rzp.on("payment.failed", (response) => {
+        console.error("Payment failed:", response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+
+      rzp.open();
     } catch (err) {
       console.error("Add money error:", err);
-      // Agar paise add ho gaye hain to success dikhao
-      toast.success(`₹${amount} added to wallet!`);
-      refresh();
-      setAmount("");
+      toast.error(err.response?.data?.message || "Failed to initiate payment");
     } finally {
       setLoading(false);
     }
@@ -58,20 +196,31 @@ const Wallet = () => {
       toast.error("Minimum withdrawal ₹100");
       return;
     }
+
     if (amount > balance) {
       toast.error("Insufficient balance");
       return;
     }
+
     if (!upi) {
       toast.error("Please enter UPI ID");
       return;
     }
+
     setLoading(true);
+
     try {
-      await walletService.withdraw({ amount: Number(amount), upiId: upi });
+      await walletService.withdraw({
+        amount: Number(amount),
+        upiId: upi,
+      });
+
       toast.success("Withdrawal request submitted!");
+
       refresh();
+
       setAmount("");
+
       setUpi("");
     } catch (e) {
       toast.error(e.response?.data?.message || "Withdrawal failed");
@@ -86,22 +235,28 @@ const Wallet = () => {
   return (
     <div className="min-h-screen bg-dark-400">
       <Navbar />
+
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Balance Card */}
         <div className="card p-6 mb-6 bg-gradient-to-br from-primary-900/30 to-dark-200">
           <p className="text-gray-400 text-sm mb-1">Total Balance</p>
+
           <p className="text-white text-4xl font-black mb-4">
             {formatCurrency(totalBalance)}
           </p>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-dark-300/50 rounded-xl p-3">
               <p className="text-gray-500 text-xs mb-1">Withdrawable</p>
+
               <p className="text-primary-400 font-bold text-lg">
                 {formatCurrency(balance)}
               </p>
             </div>
+
             <div className="bg-dark-300/50 rounded-xl p-3">
               <p className="text-gray-500 text-xs mb-1">Bonus Cash</p>
+
               <p className="text-yellow-400 font-bold text-lg">
                 {formatCurrency(bonusBalance)}
               </p>
@@ -151,10 +306,12 @@ const Wallet = () => {
               <label className="text-gray-400 text-sm mb-2 block">
                 Enter Amount
               </label>
+
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">
                   ₹
                 </span>
+
                 <input
                   type="number"
                   placeholder="0"
@@ -184,10 +341,12 @@ const Wallet = () => {
 
             <div className="mb-4">
               <label className="text-gray-400 text-sm mb-2 block">Amount</label>
+
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                   ₹
                 </span>
+
                 <input
                   type="number"
                   placeholder="Min ₹10"
@@ -200,6 +359,7 @@ const Wallet = () => {
 
             <div className="mb-5">
               <label className="text-gray-400 text-sm mb-2 block">UPI ID</label>
+
               <input
                 type="text"
                 placeholder="yourname@upi"
@@ -214,12 +374,14 @@ const Wallet = () => {
                 <p className="text-yellow-400 text-sm font-semibold">
                   TDS Deduction Applicable
                 </p>
+
                 <p className="text-gray-400 text-xs mt-1">
-                  30% TDS of ₹{formatCurrency(tds)} will be deducted (winnings
-                  above ₹10,000)
+                  30% TDS of ₹{formatCurrency(tds)} will be deducted
                 </p>
+
                 <p className="text-white text-sm font-bold mt-2">
-                  You will receive: {formatCurrency(Number(amount) - tds)}
+                  You will receive:
+                  {formatCurrency(Number(amount) - tds)}
                 </p>
               </div>
             )}
@@ -240,6 +402,7 @@ const Wallet = () => {
             <h3 className="text-white font-bold text-lg mb-4">
               Transaction History
             </h3>
+
             {txLoading ? (
               <div className="flex justify-center py-8">
                 <Loader />
@@ -259,12 +422,20 @@ const Wallet = () => {
                       <p className="text-white text-sm font-semibold capitalize">
                         {tx.type.replace("_", " ")}
                       </p>
+
                       <p className="text-gray-500 text-xs">
                         {formatDate(tx.createdAt)}
                       </p>
                     </div>
+
                     <p
-                      className={`font-bold ${["deposit", "winning", "bonus", "refund"].includes(tx.type) ? "text-primary-400" : "text-red-400"}`}
+                      className={`font-bold ${
+                        ["deposit", "winning", "bonus", "refund"].includes(
+                          tx.type,
+                        )
+                          ? "text-primary-400"
+                          : "text-red-400"
+                      }`}
                     >
                       {["deposit", "winning", "bonus", "refund"].includes(
                         tx.type,
