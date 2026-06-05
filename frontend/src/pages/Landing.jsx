@@ -72,7 +72,7 @@ const Landing = () => {
           <Link to="/" className="flex items-center gap-2">
             <GiCricketBat className="text-primary-500 text-2xl" />
             <span className="text-white font-bold text-xl">
-              fantasy<span className="text-primary-500">11</span>
+              Fantasy<span className="text-primary-500">11</span>
             </span>
           </Link>
           <div className="flex items-center gap-3">
