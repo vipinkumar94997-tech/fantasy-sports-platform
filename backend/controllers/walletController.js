@@ -25,8 +25,8 @@ export const addMoney = async (req, res) => {
   try {
     const { amount } = req.body;
 
-    if (!amount || amount < 10)
-      return res.status(400).json({ message: "Minimum ₹10 required" });
+    if (!amount || amount < 100)
+      return res.status(400).json({ message: "Minimum ₹100 required" });
 
     // Razorpay order create karo
     const order = await razorpay.orders.create({

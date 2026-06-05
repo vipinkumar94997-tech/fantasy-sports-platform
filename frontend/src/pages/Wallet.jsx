@@ -25,7 +25,7 @@ const Wallet = () => {
   const [txLoading, setTxLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const QUICK_AMOUNTS = [10, 100, 500, 1000, 5000];
+  const QUICK_AMOUNTS = [100, 500, 1000, 5000];
 
   useEffect(() => {
     walletService
@@ -107,8 +107,8 @@ const Wallet = () => {
   // };
 
   const handleAddMoney = async () => {
-    if (!amount || Number(amount) < 10) {
-      toast.error("Minimum ₹10 required");
+    if (!amount || Number(amount) < 100) {
+      toast.error("Minimum ₹100 required");
       return;
     }
     setLoading(true);
@@ -192,7 +192,7 @@ const Wallet = () => {
   };
 
   const handleWithdraw = async () => {
-    if (!amount || amount < 10) {
+    if (!amount || amount < 100) {
       toast.error("Minimum withdrawal ₹100");
       return;
     }
