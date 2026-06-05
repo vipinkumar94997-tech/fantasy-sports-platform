@@ -10,7 +10,7 @@ import Leaderboard from "./Leaderboard.js";
 import Notification from "./Notification.js";
 import PromoCode from "./PromoCode.js";
 import Referral from "./Referral.js";
-import OTP from "./res.js/index.js";
+import OTP from "./res.js";
 import Team from "./Team.js";
 import Match from "./Match.js";
 
