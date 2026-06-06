@@ -23,7 +23,7 @@ import contestRoutes from "./routes/contestRoutes.js";
 import walletRoutes from "./routes/walletRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
-import kycRoutes from "./routes/kycRoutes.js";
+import kycRoutes from "./routes/KycRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import playerRoutes from "./routes/playerRoutes.js";
 
