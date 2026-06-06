@@ -1,7 +1,7 @@
 import express from "express";
 import {
   submitKYC,
-  getKYCStatus,
+  getKycStatus,
   getAllKYC,
   approveKYC,
   rejectKYC,
