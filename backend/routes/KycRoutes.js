@@ -5,7 +5,7 @@ import {
   getAllKYC,
   approveKYC,
   rejectKYC,
-} from "../controllers/kycController.js";
+} from "../controllers/KycController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
