@@ -47,7 +47,7 @@ export const submitKYC = async (req, res) => {
 };
 
 // KYC Status
-export const getKYCStatus = async (req, res) => {
+export const getKycStatus = async (req, res) => {
   try {
     const kyc = await KYC.findOne({ where: { userId: req.user.id } });
     res.json({ kyc });
