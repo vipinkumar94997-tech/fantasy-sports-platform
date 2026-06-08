@@ -4,7 +4,7 @@ import sequelize from "../config/db.js";
 const Notification = sequelize.define(
   "Notification",
   {
-    userId: { type: DataTypes.STRING(36), allowNull: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
     title: { type: DataTypes.STRING, allowNull: false },
     message: { type: DataTypes.TEXT, allowNull: false },
     type: {
