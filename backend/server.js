@@ -59,8 +59,8 @@ app.use(helmet());
 app.use(
   cors({
     origin: [
-      "https://fantasy-sports-platform-neon.vercel.app",
       "http:localhost:5173",
+      "https://fantasy-sports-platform-neon.vercel.app",
     ],
     credentials: true,
   }),
