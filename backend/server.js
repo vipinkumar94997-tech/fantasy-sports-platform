@@ -39,13 +39,29 @@ export const io = new Server(httpServer, {
 });
 
 // ================= DB CONNECT =================
+// const connectDB = async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log("MySQL Connected Successfully");
+
+//     // await sequelize.sync({ force: false });
+//     // console.log("Tables Synced Successfully");
+//   } catch (error) {
+//     console.log("Database Error:", error);
+//   }
+// };
+
+// connectDB();
+
+// ================= MIDDLEWARE =================
+
 const connectDB = async () => {
   try {
-    await sequelize.authenticate();
-    console.log("MySQL Connected Successfully");
+    console.log("Trying to connect DB...");
 
-    await sequelize.sync({ force: false }); //
-    console.log("Tables Synced Successfully");
+    await sequelize.authenticate();
+
+    console.log("MySQL Connected Successfully");
   } catch (error) {
     console.log("Database Error:", error);
   }
@@ -53,7 +69,6 @@ const connectDB = async () => {
 
 connectDB();
 
-// ================= MIDDLEWARE =================
 app.use(helmet());
 
 app.use(
