@@ -6,9 +6,9 @@ const KYC = sequelize.define(
   {
     userId: { type: DataTypes.INTEGER, allowNull: false },
     aadhaarNumber: { type: DataTypes.STRING },
-    aadhaarImage: { type: DataTypes.TEXT("midium") },
+    aadhaarImage: { type: DataTypes.TEXT },
     panNumber: { type: DataTypes.STRING },
-    panImage: { type: DataTypes.TEXT("midium") },
+    panImage: { type: DataTypes.TEXT },
     status: {
       type: DataTypes.ENUM("pending", "verified", "rejected"),
       defaultValue: "pending",

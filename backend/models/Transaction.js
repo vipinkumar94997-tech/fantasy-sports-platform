@@ -4,7 +4,7 @@ import sequelize from "../config/db.js";
 const Transaction = sequelize.define(
   "Transaction",
   {
-    userId: { type: DataTypes.INTEGER(36), allowNull: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
     type: {
       type: DataTypes.ENUM(
         "deposit",

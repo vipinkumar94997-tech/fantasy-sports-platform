@@ -9,6 +9,7 @@ import morgan from "morgan";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { connectDB } from "./config/db.js";
 
 import sequelize from "./config/db.js";
 
@@ -28,6 +29,17 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import playerRoutes from "./routes/playerRoutes.js";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://fantasy-sports-platform-neon.vercel.app",
+    ],
+    credentials: true,
+  }),
+);
+
 const httpServer = createServer(app);
 
 // ================= SOCKET =================
@@ -38,6 +50,7 @@ export const io = new Server(httpServer, {
   },
 });
 
+//2
 // ================= DB CONNECT =================
 // const connectDB = async () => {
 //   try {
@@ -54,18 +67,18 @@ export const io = new Server(httpServer, {
 // connectDB();
 
 // ================= MIDDLEWARE =================
+//1
+// const connectDB = async () => {
+//   try {
+//     console.log("Trying to connect DB...");
 
-const connectDB = async () => {
-  try {
-    console.log("Trying to connect DB...");
+//     await sequelize.authenticate();
 
-    await sequelize.authenticate();
-
-    console.log("MySQL Connected Successfully");
-  } catch (error) {
-    console.log("Database Error:", error);
-  }
-};
+//     console.log("MySQL Connected Successfully");
+//   } catch (error) {
+//     console.log("Database Error:", error);
+//   }
+// };
 
 connectDB();
 

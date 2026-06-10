@@ -4,7 +4,7 @@ import sequelize from "../config/db.js";
 const Withdrawal = sequelize.define(
   "Withdrawal",
   {
-    userId: { type: DataTypes.INTEGER(36), allowNull: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
     amount: { type: DataTypes.FLOAT, allowNull: false },
     upiId: { type: DataTypes.STRING, allowNull: false },
     status: {
