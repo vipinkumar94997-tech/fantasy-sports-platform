@@ -1,6 +1,5 @@
 export const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://fantasy-sports-platform-6.onrender.com/api";
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/auth";
 
 export const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
