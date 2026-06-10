@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import paymentRoutes from "./routes/paymentRoutes.js";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -9,9 +8,8 @@ import morgan from "morgan";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { connectDB } from "./config/db.js";
 
-import sequelize from "./config/db.js";
+import { connectDB } from "./config/db.js";
 
 // Models
 import "./models/index.js";
@@ -27,76 +25,48 @@ import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import kycRoutes from "./routes/KycRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import playerRoutes from "./routes/playerRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 const app = express();
+const httpServer = createServer(app);
+
+// ================= DB =================
+connectDB();
+
+// ================= CORS (ONLY ONCE - FIXED) =================
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://fantasy-sports-platform-eight.vercel.app",
+];
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://fantasy-sports-platform-neon.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // mobile apps / postman
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
 
-const httpServer = createServer(app);
+// ================= MIDDLEWARE =================
+app.use(helmet());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
 
 // ================= SOCKET =================
 export const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   },
 });
-
-//2
-// ================= DB CONNECT =================
-// const connectDB = async () => {
-//   try {
-//     await sequelize.authenticate();
-//     console.log("MySQL Connected Successfully");
-
-//     // await sequelize.sync({ force: false });
-//     // console.log("Tables Synced Successfully");
-//   } catch (error) {
-//     console.log("Database Error:", error);
-//   }
-// };
-
-// connectDB();
-
-// ================= MIDDLEWARE =================
-//1
-// const connectDB = async () => {
-//   try {
-//     console.log("Trying to connect DB...");
-
-//     await sequelize.authenticate();
-
-//     console.log("MySQL Connected Successfully");
-//   } catch (error) {
-//     console.log("Database Error:", error);
-//   }
-// };
-
-connectDB();
-
-app.use(helmet());
-
-app.use(
-  cors({
-    origin: [
-      "http:localhost:5173",
-      "https://fantasy-sports-platform-neon.vercel.app",
-    ],
-    credentials: true,
-  }),
-);
-
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
-app.use(morgan("dev"));
 
 // ================= ROUTES =================
 app.use("/api/auth", authRoutes);
@@ -113,12 +83,12 @@ app.use("/api/payment", paymentRoutes);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
-  res.json({ message: "Fantasy11 API Running" });
+  res.json({ message: "Fantasy API Running" });
 });
 
 // ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
-  console.error(err); // 🔥 important for debugging
+  console.error(err);
 
   res.status(err.status || 500).json({
     message: err.message || "Server Error",
