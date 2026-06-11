@@ -112,6 +112,17 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-dark-200 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Mobile Sidebar Button */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden text-gray-400 hover:text-white mr-2"
+        >
+          {menuOpen ? (
+            <FiX className="text-2xl" />
+          ) : (
+            <FiMenu className="text-2xl" />
+          )}
+        </button>
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <GiCricketBat className="text-primary-500 text-2xl" />
@@ -355,7 +366,7 @@ const Navbar = () => {
           )}
 
           {/* Mobile Menu Toggle */}
-          {isAuthenticated && (
+          {/* {isAuthenticated && (
             <button
               className="md:hidden text-gray-400 hover:text-white"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -366,7 +377,7 @@ const Navbar = () => {
                 <FiMenu className="text-xl" />
               )}
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
