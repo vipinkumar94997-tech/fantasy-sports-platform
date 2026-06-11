@@ -14,6 +14,12 @@ const Match = sequelize.define(
       allowNull: false,
     },
 
+    sport: {
+      type: String,
+      enum: ["cricket", "football"],
+      required: true,
+    },
+
     matchTime: {
       type: DataTypes.DATE,
       allowNull: false,

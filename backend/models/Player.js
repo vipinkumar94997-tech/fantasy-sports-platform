@@ -14,6 +14,12 @@ const Player = sequelize.define(
       allowNull: false,
     },
 
+    sport: {
+      type: String,
+      enum: ["cricket", "football"],
+      required: true,
+    },
+
     team: {
       type: DataTypes.STRING,
       allowNull: false,
