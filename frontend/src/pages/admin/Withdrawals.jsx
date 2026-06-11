@@ -44,16 +44,19 @@ const AdminWithdrawals = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-400">
-      <div className="bg-dark-200 border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-dark-400 pt-14 md:pt-0">
+      <div className="bg-dark-200 border-b border-white/10 px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {" "}
+        <div className="flex items-center gap-3 flex-wrap">
           <Link to="/admin" className="text-gray-400 hover:text-white text-sm">
             ← Dashboard
           </Link>
-          <h1 className="text-white font-black text-xl">Withdrawals</h1>
+          <h1 className="text-white font-black text-xl md:text-2xl">
+            Withdrawals
+          </h1>
         </div>
         {filter === "pending" && totalPending > 0 && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 rounded-lg">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 rounded-lg w-full md:w-auto">
             <span className="text-yellow-400 text-sm font-semibold">
               Total Pending: {formatCurrency(totalPending)}
             </span>

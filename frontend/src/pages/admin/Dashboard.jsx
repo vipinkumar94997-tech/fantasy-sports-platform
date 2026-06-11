@@ -64,12 +64,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-dark-400">
-      {/* Top Bar */}
-      {/* <Header /> */}
-
       <div className="flex">
-        {/* Sidebar */}
-        {/* <Sidebar /> */}
         <Main>
           <div className="flex-1 p-6">
             {/* Stat Cards */}
@@ -244,7 +239,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="space-y-3">
                   {stats?.recentTransactions?.map((tx, i) => (
-                    <div key={i} className="flex items-center justify-between">
+                    <div key={i} className="flex items-center justify-between ">
                       <div>
                         <p className="text-white text-sm font-medium">
                           {tx.user?.name || tx.userName}

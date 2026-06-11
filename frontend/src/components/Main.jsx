@@ -10,7 +10,7 @@ const Main = ({ children }) => {
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-50 text-white text-2xl bg-dark-200 px-3 py-1 rounded-lg"
+        className="md:hidden fixed top-3 left-3 z-[999] text-white text-3xl bg-black px-3 py-1 rounded-lg"
       >
         ☰
       </button>
