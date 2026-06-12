@@ -30,8 +30,6 @@ const CreateTeam = () => {
 
         const res = await matchService.getPlayers(matchId);
 
-        // console.log("Players API Response:", res.data);
-
         // different possible response formats handle karo
         const playersData =
           res.data?.players || res.data?.data || res.data || [];
@@ -190,9 +188,22 @@ const CreateTeam = () => {
       <div className="sticky top-16 z-40 bg-dark-200 border-b border-white/10 px-4 py-3">
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
           <div className="grid grid-cols-4 gap-3 flex-1">
-            {["WK", "BAT", "AR", "BOWL"].map((role) => (
+            {(matchId?.sport === "football"
+              ? ["GOALKEEPER", "DEFENDER", "MIDFIELDER", "FORWARD"]
+              : ["WK", "BAT", "AR", "BOWL"]
+            ).map((role) => (
               <div key={role} className="text-center">
-                <p className="text-gray-500 text-xs">{role}</p>
+                <p className="text-gray-500 text-xs">
+                  {role === "GOALKEEPER"
+                    ? "GK"
+                    : role === "DEFENDER"
+                      ? "DEF"
+                      : role === "MIDFIELDER"
+                        ? "MID"
+                        : role === "FORWARD"
+                          ? "FWD"
+                          : role}
+                </p>
 
                 <p className="text-white font-bold text-sm">
                   {getRoleCount(role)}
