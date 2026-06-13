@@ -127,12 +127,21 @@ import Transaction from "../models/Transaction.js";
 
 export const getContestsByMatch = async (req, res) => {
   try {
+    const matchId = Number(req.params.matchId);
+
+    console.log("MATCH ID:", matchId);
+
     const contests = await Contest.findAll({
-      where: { matchId: req.params.matchId },
+      where: { matchId },
       order: [["createdAt", "DESC"]],
     });
+
+    console.log("CONTESTS:", contests);
+
     res.json({ contests });
   } catch (err) {
+    console.log(err);
+
     res.status(500).json({ message: err.message });
   }
 };
@@ -157,7 +166,7 @@ export const joinContest = async (req, res) => {
 
     // Already joined check
     const existing = await ContestEntry.findOne({
-      where: { contestId, userId },
+      where: { contestId, userId, teamId },
     });
     if (existing) return res.status(400).json({ message: "Already joined" });
 

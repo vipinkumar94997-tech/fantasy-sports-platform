@@ -17,8 +17,12 @@ const Contests = () => {
 
   useEffect(() => {
     contestService
-      .getByMatch(matchId)
-      .then((res) => setContests(res.data.contests))
+      .getByMatch(Number(matchId))
+      .then((res) => {
+        console.log(res.data);
+
+        setContests(res.data.contests);
+      })
       .catch(() => toast.error("Failed to load contests"))
       .finally(() => setLoading(false));
   }, [matchId]);
