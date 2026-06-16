@@ -107,7 +107,7 @@ const ResponsibleGaming = () => {
           </p>
           <div className="space-y-2">
             <p className="text-primary-400 text-sm font-semibold">
-              📞 Helpline: 1800-XXX-XXXX
+              📞 Helpline: 8937972142
             </p>
             <p className="text-primary-400 text-sm font-semibold">
               📧 help@fantasy11.com
