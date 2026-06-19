@@ -34,10 +34,7 @@ const httpServer = createServer(app);
 connectDB();
 
 // ================= CORS (ONLY ONCE - FIXED) =================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://fantasy-sports-platform-eight.vercel.app",
-];
+const allowedOrigins = ["https://fantasy-sports-platform-eight.vercel.app"];
 
 app.use(
   cors({
