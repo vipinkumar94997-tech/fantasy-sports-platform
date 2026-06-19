@@ -36,6 +36,7 @@ connectDB();
 // ================= CORS (ONLY ONCE - FIXED) =================
 const allowedOrigins = [
   "https://fantasy-sports-platform-neon.vercel.app",
+  "https://fantasy-sports-platform-eight.vercel.app",
   "http://localhost:5173",
 ];
 
