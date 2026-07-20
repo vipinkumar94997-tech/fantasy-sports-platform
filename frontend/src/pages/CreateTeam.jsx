@@ -499,7 +499,8 @@ const CreateTeam = () => {
 
       toast.success("Team created successfully 🎉");
 
-      navigate(`/match/${matchId}`);
+      navigate(`/contests/${matchId}`);
+      console.log("matchId:", matchId);
     } catch (error) {
       console.error("Save Team Error:", error);
 
