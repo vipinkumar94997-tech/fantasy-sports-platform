@@ -6,8 +6,6 @@ import store from "./redux/store";
 import App from "./App.jsx";
 import "./index.css";
 
-console.log("CLIENT ID =", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>

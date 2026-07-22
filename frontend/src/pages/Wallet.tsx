@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import { walletService } from "../services/walletService";
 import { useWallet } from "../hooks/useWallet";
@@ -6,7 +7,34 @@ import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
 import { formatCurrency, formatDate, calculateTDS } from "../utils/helpers";
 import toast from "react-hot-toast";
-// import axios from "axios";
+import { loadRazorpay } from "../utils/loadRazorpay";
+
+interface WalletTransaction {
+  id: number;
+  type: string;
+  amount: number;
+  createdAt: string;
+}
+
+interface StoredUser {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
+interface OrderResponse {
+  orderId: string;
+  amount: number | string;
+  currency: string;
+  razorpayKey: string;
+}
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message ?? fallback;
+  }
+  return error instanceof Error ? error.message : fallback;
+};
 
 const TABS = ["Add Money", "Withdraw", "Transactions"];
 
@@ -20,20 +48,45 @@ const Wallet = () => {
 
   const [amount, setAmount] = useState("");
   const [upi, setUpi] = useState("");
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [txLoading, setTxLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem("user"));
+  const storedUser = localStorage.getItem("user");
+  const user: StoredUser | null = storedUser ? JSON.parse(storedUser) : null;
+  const mountedRef = useRef(true);
+  const checkoutRef = useRef<RazorpayInstance | null>(null);
+  const paymentInProgressRef = useRef(false);
+  const transactionsRequestRef = useRef<Promise<WalletTransaction[]> | null>(
+    null,
+  );
 
   const QUICK_AMOUNTS = [100, 500, 1000, 5000];
 
-  useEffect(() => {
-    walletService
-      .getTransactions()
-      .then((res) => setTransactions(res.data.transactions))
-      .catch(() => {})
-      .finally(() => setTxLoading(false));
+  const reloadTransactions = useCallback(async () => {
+    const response = await walletService.getTransactions();
+    const nextTransactions = response.data.transactions ?? [];
+    if (mountedRef.current) setTransactions(nextTransactions);
+    return nextTransactions as WalletTransaction[];
   }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    transactionsRequestRef.current ??= reloadTransactions();
+    transactionsRequestRef.current
+      .catch(() => {
+        if (mountedRef.current) toast.error("Failed to load transactions");
+      })
+      .finally(() => {
+        if (mountedRef.current) setTxLoading(false);
+      });
+
+    return () => {
+      mountedRef.current = false;
+      checkoutRef.current?.close();
+      checkoutRef.current = null;
+      paymentInProgressRef.current = false;
+    };
+  }, [reloadTransactions]);
 
   // UPDATED FUNCTION
   // const handleAddMoney = async () => {
@@ -47,16 +100,13 @@ const Wallet = () => {
   //   try {
   //     // ORDER CREATE API
   //     const { data } = await axios.post(
-  //       "http://localhost:8000/api/payment/create-order",
   //       {
   //         amount: Number(amount),
   //       },
   //     );
 
-  //     console.log("ORDER:", data);
 
   //     const options = {
-  //       key: "rzp_test_xxxxx", // apni razorpay test key
 
   //       amount: data.amount,
 
@@ -69,7 +119,6 @@ const Wallet = () => {
   //       description: "Wallet Add Money",
 
   //       handler: async function (response) {
-  //         console.log("PAYMENT SUCCESS:", response);
 
   //         // WALLET UPDATE
   //         await walletService.addMoney({
@@ -85,7 +134,6 @@ const Wallet = () => {
 
   //       modal: {
   //         ondismiss: function () {
-  //           console.log("Payment popup closed");
   //         },
   //       },
 
@@ -98,7 +146,6 @@ const Wallet = () => {
 
   //     razorpay.open();
   //   } catch (err) {
-  //     console.log("PAYMENT ERROR:", err);
 
   //     toast.error("Payment failed");
   //   } finally {
@@ -107,43 +154,57 @@ const Wallet = () => {
   // };
 
   const handleAddMoney = async () => {
-    if (!amount || Number(amount) < 100) {
+    if (paymentInProgressRef.current) return;
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount < 100) {
       toast.error("Minimum ₹100 required");
       return;
     }
+    paymentInProgressRef.current = true;
     setLoading(true);
+    const releaseCheckout = () => {
+      paymentInProgressRef.current = false;
+      checkoutRef.current = null;
+      if (mountedRef.current) setLoading(false);
+    };
     try {
+      await loadRazorpay();
       // Backend se order create karo
-      const orderRes = await walletService.addMoney({ amount: Number(amount) });
-      const { orderId } = orderRes.data;
+      const orderRes = await walletService.addMoney({ amount: numericAmount });
+      const { orderId, amount: orderAmount, currency, razorpayKey } =
+        orderRes.data as OrderResponse;
+      if (!orderId || !razorpayKey || !orderAmount || !currency) {
+        throw new Error("Invalid payment order response");
+      }
+      let paymentCompleted = false;
 
       // Razorpay checkout options
-      const options = {
-        key: "rzp_test_yCaEJmoMTJU3NT",
-        amount: Number(amount) * 100,
-        currency: "INR",
+      const options: RazorpayOptions = {
+        key: razorpayKey,
+        amount: orderAmount,
+        currency,
         name: "Fantasy11",
         description: "Add Money to Wallet",
         // image: "/logo.png",
         order_id: orderId,
-        handler: async (response) => {
+        handler: async (response: RazorpaySuccessResponse) => {
           try {
             // Payment verify karo
             await walletService.verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              amount: Number(amount) * 100,
             });
+            paymentCompleted = true;
             toast.success(`₹${amount} added successfully!`);
-            refresh();
-            setAmount("");
-            // Transactions reload karo
-            walletService
-              .getTransactions()
-              .then((res) => setTransactions(res.data.transactions || []));
-          } catch {
-            toast.error("Payment verification failed. Contact support.");
+            await Promise.all([Promise.resolve(refresh()), reloadTransactions()]);
+            if (mountedRef.current) setAmount("");
+          } catch (error) {
+            toast.error(
+              getErrorMessage(error, "Payment verification failed. Contact support."),
+            );
+          } finally {
+            releaseCheckout();
           }
         },
         prefill: {
@@ -159,35 +220,29 @@ const Wallet = () => {
         },
         modal: {
           ondismiss: () => {
-            toast.error("Payment cancelled");
-            setLoading(false);
+            if (!paymentCompleted && mountedRef.current)
+              toast.error("Payment cancelled");
+            releaseCheckout();
           },
           escape: true,
           backdropclose: false,
         },
       };
 
-      // Razorpay open karo
-      if (!window.Razorpay) {
-        toast.error("Razorpay not loaded. Please refresh the page.");
-        setLoading(false);
-        return;
-      }
+      if (!window.Razorpay) throw new Error("Razorpay Checkout unavailable");
 
       const rzp = new window.Razorpay(options);
+      checkoutRef.current = rzp;
 
       rzp.on("payment.failed", (response) => {
-        console.error("Payment failed:", response.error);
         toast.error(`Payment failed: ${response.error.description}`);
-        setLoading(false);
+        releaseCheckout();
       });
 
       rzp.open();
-    } catch (err) {
-      console.error("Add money error:", err);
-      toast.error(err.response?.data?.message || "Failed to initiate payment");
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      releaseCheckout();
+      toast.error(getErrorMessage(error, "Failed to initiate payment"));
     }
   };
 
@@ -415,7 +470,7 @@ const Wallet = () => {
               <div className="space-y-3">
                 {transactions.map((tx, i) => (
                   <div
-                    key={i}
+                    key={tx.id ?? i}
                     className="flex items-center justify-between py-3 border-b border-white/5 last:border-0"
                   >
                     <div>
