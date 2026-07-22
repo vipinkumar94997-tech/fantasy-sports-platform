@@ -46,7 +46,7 @@ const Team = sequelize.define(
 
     status: {
       type: DataTypes.STRING,
-      defaultValue: "PENDING",
+      defaultValue: "active",
     },
   },
   {

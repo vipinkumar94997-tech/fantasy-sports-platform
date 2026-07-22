@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { loginUser } from "../redux/slices/authSlice";
+import { authenticateSession, loginUser } from "../redux/slices/authSlice";
+import { storeAuthSession } from "../utils/authStorage";
 import { authService } from "../services/authService";
 import toast from "react-hot-toast";
 import { GiCricketBat } from "react-icons/gi";
@@ -36,19 +37,10 @@ const Login = () => {
 
     const res = await dispatch(loginUser(form));
 
-    console.log("Login response:", res.payload);
-
     if (loginUser.fulfilled.match(res)) {
-      localStorage.setItem("token", res.payload.token);
-
-      // SAVE USER
-      localStorage.setItem("user", JSON.stringify(res.payload.user));
-
       toast.success("Welcome back! 🏏");
 
       const role = res.payload?.user?.role;
-
-      console.log("User role:", role);
 
       if (role === "admin") {
         navigate("/admin");
@@ -63,8 +55,8 @@ const Login = () => {
   const handleGoogle = async (credentialResponse) => {
     try {
       const res = await authService.googleLogin(credentialResponse.credential);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
+      storeAuthSession(res.data);
+      dispatch(authenticateSession(res.data));
       toast.success("Logged in with Google!");
       navigate("/home");
     } catch {

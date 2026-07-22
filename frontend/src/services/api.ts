@@ -1,5 +1,9 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from "axios";
 import { API_URL } from "../utils/constants";
+import { clearAuthSession, getStoredAuthSession, storeAccessToken } from "../utils/authStorage";
+
+interface RetryableRequestConfig extends InternalAxiosRequestConfig { _retry?: boolean }
+interface RefreshTokenResponse { token: string }
 
 const api = axios.create({
   baseURL: API_URL,
@@ -7,38 +11,64 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor — token attach karo
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+let refreshRequest: Promise<string> | null = null;
 
-// Response interceptor — 401 pe refresh token
+const refreshAccessToken = (refreshToken: string): Promise<string> => {
+  if (!refreshRequest) {
+    refreshRequest = axios
+      .post<RefreshTokenResponse>(`${API_URL}/auth/refresh-token`, { token: refreshToken }, { withCredentials: true })
+      .then(({ data }) => {
+        if (!data.token) throw new Error("Refresh response did not include a token");
+        storeAccessToken(data.token);
+        return data.token;
+      })
+      .catch((error: unknown) => {
+        if (axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)) {
+          clearAuthSession();
+        }
+        throw error;
+      })
+      .finally(() => { refreshRequest = null; });
+  }
+  return refreshRequest;
+};
+
+api.interceptors.request.use((config) => {
+  const { token } = getStoredAuthSession();
+  if (token) config.headers.set("Authorization", `Bearer ${token}`);
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
-      try {
-        const refresh = localStorage.getItem("refreshToken");
-        const res = await axios.post(`${API_URL}/auth/refresh-token`, {
-          token: refresh,
-        });
-        const { token } = res.data;
-        localStorage.setItem("token", token);
-        original.headers.Authorization = `Bearer ${token}`;
-        return api(original);
-      } catch {
-        localStorage.clear();
-        window.location.href = "/login";
-      }
+  async (error: AxiosError) => {
+    const original = error.config as RetryableRequestConfig | undefined;
+    if (error.response?.status !== 401 || !original) return Promise.reject(error);
+
+    if (original._retry) {
+      clearAuthSession();
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    const requestUrl = original.url ?? "";
+    if (/\/auth\/(login|register|verify-otp|refresh-token)$/.test(requestUrl)) return Promise.reject(error);
+
+    const { refreshToken } = getStoredAuthSession();
+    if (!refreshToken) {
+      clearAuthSession();
+      return Promise.reject(error);
+    }
+
+    original._retry = true;
+    try {
+      const token = await refreshAccessToken(refreshToken);
+      original.headers = AxiosHeaders.from(original.headers);
+      original.headers.set("Authorization", `Bearer ${token}`);
+      return api(original);
+    } catch {
+      // Network, CORS and 5xx refresh failures deliberately preserve the session.
+      return Promise.reject(error);
+    }
   },
 );
 

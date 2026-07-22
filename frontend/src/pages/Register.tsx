@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { authenticateSession } from "../redux/slices/authSlice";
+import { storeAuthSession } from "../utils/authStorage";
 import { authService } from "../services/authService";
 import toast from "react-hot-toast";
 import { GiCricketBat } from "react-icons/gi";
@@ -40,6 +42,7 @@ const STATES = [
 ];
 
 const Register = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { loading } = useAppSelector((s) => s.auth);
   const [step, setStep] = useState(1);
@@ -78,8 +81,8 @@ const Register = () => {
     e.preventDefault();
     try {
       const res = await authService.verifyOTP({ phone: form.phone, otp });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
+      storeAuthSession(res.data);
+      dispatch(authenticateSession(res.data));
       toast.success("Account created! Welcome to Fantasy11 🎉");
       navigate("/home");
     } catch {

@@ -13,10 +13,8 @@ import { setSocketServer } from "./services/socketService.js";
 
 import { connectDB } from "./config/db.js";
 
-// Models
 import "./models/index.js";
 
-// Routes
 import authRoutes from "./routes/authRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import teamRoutes from "./routes/teamRoutes.js";
@@ -34,10 +32,8 @@ const httpServer = createServer(app);
 
 validateCoreEnvironment();
 
-// ================= DB =================
 connectDB();
 
-// ================= CORS (ONLY ONCE - FIXED) =================
 const allowedOrigins = [
   "https://fantasy-sports-platform-neon.vercel.app",
   "https://fantasy-sports-platform-eight.vercel.app",
@@ -47,7 +43,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // mobile apps / postman
+      if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -59,13 +55,11 @@ app.use(
   }),
 );
 
-// ================= MIDDLEWARE =================
 app.use(helmet());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// ================= SOCKET =================
 export const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
@@ -74,7 +68,6 @@ export const io = new Server(httpServer, {
 });
 setSocketServer(io);
 
-// ================= ROUTES =================
 app.use("/api/auth", authRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/teams", teamRoutes);
@@ -87,12 +80,10 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/payment", paymentRoutes);
 
-// ================= TEST ROUTE =================
 app.get("/", (req, res) => {
   res.json({ message: "Fantasy API Running" });
 });
 
-// ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
   console.error(err);
 
@@ -101,7 +92,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ================= SOCKET EVENTS =================
 io.on("connection", (socket) => {
   console.log("User Connected:", socket.id);
 

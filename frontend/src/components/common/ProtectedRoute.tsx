@@ -1,11 +1,14 @@
 import { Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Loader from "./Loader";
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { isAuthenticated, user, loading } = useAuth();
+interface ProtectedRouteProps { children: ReactNode; adminOnly?: boolean }
 
-  if (loading) {
+const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
+  const { isAuthenticated, user, initialized } = useAuth();
+
+  if (!initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-300">
         <Loader size="lg" text="Loading..." />
