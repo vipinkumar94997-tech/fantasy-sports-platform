@@ -2,6 +2,16 @@ import { Link } from "react-router-dom";
 import Badge from "../common/Badge";
 import { timeUntilMatch } from "../../utils/helpers";
 
+const TeamAvatar = ({ logo, shortName }) => (
+  <div className="w-12 h-12 rounded-full bg-dark-300 border border-white/10 flex items-center justify-center overflow-hidden">
+    {logo ? (
+      <img src={logo} alt={shortName} className="w-full h-full object-cover" />
+    ) : (
+      <span className="text-white font-bold text-sm">{shortName}</span>
+    )}
+  </div>
+);
+
 const MatchCard = ({ match }) => {
   const {
     id,
@@ -9,29 +19,13 @@ const MatchCard = ({ match }) => {
     venue,
     matchTime,
     status,
-    team1Name,
     team1ShortName,
     team1Logo,
-    team2Name,
     team2ShortName,
     team2Logo,
     totalContests,
     totalPrize,
   } = match;
-
-  const TeamAvatar = ({ logo, shortName }) => (
-    <div className="w-12 h-12 rounded-full bg-dark-300 border border-white/10 flex items-center justify-center overflow-hidden">
-      {logo ? (
-        <img
-          src={logo}
-          alt={shortName}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span className="text-white font-bold text-sm">{shortName}</span>
-      )}
-    </div>
-  );
 
   return (
     <Link to={`/match/${id}`}>

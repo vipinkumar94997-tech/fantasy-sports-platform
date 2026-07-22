@@ -7,7 +7,6 @@ const Main = ({ children }) => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      {/* Mobile Hamburger Button */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="md:hidden fixed top-3 left-3 z-[999] text-white text-3xl bg-black px-3 py-1 rounded-lg"
@@ -15,15 +14,11 @@ const Main = ({ children }) => {
         ☰
       </button>
 
-      {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Right Section */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Header */}
         <Header />
 
-        {/* Scrollable Content */}
         <main className="flex-1 overflow-y-auto p-4">{children}</main>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchMatches } from "../redux/slices/matchSlice";
 import MatchCard from "../components/match/MatchCard";
 import SkeletonCard from "../components/common/SkeletonCard";
@@ -10,9 +10,9 @@ import Navbar from "../components/common/Navbar";
 const FILTERS = ["All", "Cricket", "Football", "Live", "Upcoming"];
 
 const Home = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   // const navigate = useNavigate();
-  const { list: matches = [], loading } = useSelector((s) => s.matches);
+  const { list: matches = [], loading } = useAppSelector((s) => s.matches);
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {

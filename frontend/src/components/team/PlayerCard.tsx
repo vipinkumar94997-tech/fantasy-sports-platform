@@ -8,14 +8,14 @@ const roleColors = {
 const PlayerCard = ({
   player,
   selected,
-  onSelect,
+  onSelect = (value) => value,
   captain,
   viceCaptain,
-  onSetCaptain,
-  onSetViceCaptain,
+  onSetCaptain = (value) => value,
+  onSetViceCaptain = (value) => value,
   captainMode,
 }) => {
-  const { id, name, role, credits, team, image, points, selectionPercent } =
+  const { id, name, role, credits, team, image, selectionPercent } =
     player;
 
   return (

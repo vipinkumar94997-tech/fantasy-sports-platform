@@ -40,7 +40,7 @@ const Contest = sequelize.define(
     },
 
     firstPrize: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
 

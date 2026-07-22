@@ -1,7 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
 
-export const loginUser = createAsyncThunk(
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthUser {
+  role?: string;
+  [key: string]: unknown;
+}
+
+interface AuthResponse {
+  token: string;
+  refreshToken: string;
+  user: AuthUser;
+}
+
+export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials, { rejectValue: string }>(
   "auth/login",
   async (data, { rejectWithValue }) => {
     try {
@@ -32,7 +48,7 @@ export const registerUser = createAsyncThunk(
 
 export const getProfile = createAsyncThunk(
   "auth/profile",
-  async (_, { rejectWithValue }) => {
+  async (_: void, { rejectWithValue }) => {
     try {
       const res = await authService.getProfile();
       return res.data;

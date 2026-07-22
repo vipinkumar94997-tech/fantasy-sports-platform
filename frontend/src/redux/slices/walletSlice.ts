@@ -1,9 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { walletService } from "../../services/walletService";
 
-export const fetchWallet = createAsyncThunk(
+interface WalletResponse {
+  balance: number;
+  bonusBalance: number;
+}
+
+export const fetchWallet = createAsyncThunk<WalletResponse, void, { rejectValue: string }>(
   "wallet/fetch",
-  async (_, { rejectWithValue }) => {
+  async (_: void, { rejectWithValue }) => {
     try {
       const res = await walletService.getBalance();
       return res.data;

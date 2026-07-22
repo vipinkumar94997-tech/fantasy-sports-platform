@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSocket } from "../hooks/useSocket";
 import { matchService } from "../services/matchService";
-import { contestService } from "../services/contestService";
 import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
 import { getRankSuffix } from "../utils/helpers";

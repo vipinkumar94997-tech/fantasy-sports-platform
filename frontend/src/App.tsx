@@ -84,12 +84,10 @@ const App = () => {
         }}
       />
       <Routes>
-        {/* Public Routes */}
         {publicRoutes.map(({ path, element }) => (
           <Route key={path} path={path} element={element} />
         ))}
 
-        {/* User Protected Routes */}
         {userRoutes.map(({ path, element }) => (
           <Route
             key={path}
@@ -98,7 +96,6 @@ const App = () => {
           />
         ))}
 
-        {/* Admin Protected Routes */}
         {adminRoutes.map(({ path, element }) => (
           <Route
             key={path}
@@ -109,7 +106,6 @@ const App = () => {
           />
         ))}
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

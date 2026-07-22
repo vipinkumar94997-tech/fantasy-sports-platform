@@ -17,7 +17,7 @@ export const formatDate = (date) => {
 };
 
 export const timeUntilMatch = (matchTime) => {
-  const diff = new Date(matchTime) - new Date();
+  const diff = new Date(matchTime).getTime() - Date.now();
   if (diff <= 0) return "Started";
   const hours = Math.floor(diff / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);

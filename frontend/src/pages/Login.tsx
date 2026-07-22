@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { loginUser } from "../redux/slices/authSlice";
 import { authService } from "../services/authService";
 import toast from "react-hot-toast";
@@ -9,9 +9,9 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((s) => s.auth);
+  const { loading, error } = useAppSelector((s) => s.auth);
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
 
@@ -38,7 +38,7 @@ const Login = () => {
 
     console.log("Login response:", res.payload);
 
-    if (res.meta.requestStatus === "fulfilled") {
+    if (loginUser.fulfilled.match(res)) {
       localStorage.setItem("token", res.payload.token);
 
       // SAVE USER

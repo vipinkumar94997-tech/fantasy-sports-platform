@@ -2,7 +2,7 @@ const EmptyState = ({
   icon = "🏏",
   title = "Nothing here",
   subtitle = "",
-  action,
+  action = null,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">

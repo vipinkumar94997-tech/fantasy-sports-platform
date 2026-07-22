@@ -35,18 +35,6 @@ const Leaderboard = () => {
     return "text-gray-500";
   };
 
-  const getPodiumHeight = (rank) => {
-    if (rank === 1) return "h-24";
-    if (rank === 2) return "h-16";
-    return "h-12";
-  };
-
-  const getPodiumColor = (rank) => {
-    if (rank === 1) return "bg-yellow-400";
-    if (rank === 2) return "bg-gray-400";
-    return "bg-yellow-700";
-  };
-
   return (
     <div className="min-h-screen bg-dark-400">
       <Navbar />

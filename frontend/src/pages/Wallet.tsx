@@ -129,7 +129,7 @@ const Wallet = () => {
         handler: async (response) => {
           try {
             // Payment verify karo
-            const verifyRes = await walletService.verifyPayment({
+            await walletService.verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -142,7 +142,7 @@ const Wallet = () => {
             walletService
               .getTransactions()
               .then((res) => setTransactions(res.data.transactions || []));
-          } catch (err) {
+          } catch {
             toast.error("Payment verification failed. Contact support.");
           }
         },
@@ -192,12 +192,12 @@ const Wallet = () => {
   };
 
   const handleWithdraw = async () => {
-    if (!amount || amount < 100) {
+    if (!amount || Number(amount) < 100) {
       toast.error("Minimum withdrawal ₹100");
       return;
     }
 
-    if (amount > balance) {
+    if (Number(amount) > balance) {
       toast.error("Insufficient balance");
       return;
     }

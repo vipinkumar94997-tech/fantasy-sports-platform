@@ -1,9 +1,9 @@
-import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 export const useAuth = () => {
-  const dispatch = useDispatch();
-  const { user, token, loading } = useSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const { user, token, loading } = useAppSelector((state) => state.auth);
 
   const handleLogout = () => {
     dispatch(logout());

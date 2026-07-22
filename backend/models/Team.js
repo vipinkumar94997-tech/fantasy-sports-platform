@@ -38,6 +38,16 @@ const Team = sequelize.define(
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
+
+    rank: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    status: {
+      type: DataTypes.STRING,
+      defaultValue: "PENDING",
+    },
   },
   {
     timestamps: true,

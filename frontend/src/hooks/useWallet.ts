@@ -1,11 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
 import { fetchWallet } from "../redux/slices/walletSlice";
 import { useEffect } from "react";
 import { formatCurrency } from "../utils/helpers";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 export const useWallet = () => {
-  const dispatch = useDispatch();
-  const { balance, bonusBalance, loading } = useSelector(
+  const dispatch = useAppDispatch();
+  const { balance, bonusBalance, loading } = useAppSelector(
     (state) => state.wallet,
   );
 

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../redux/slices/authSlice";
+import { useAppSelector } from "../redux/hooks";
 import { authService } from "../services/authService";
 import toast from "react-hot-toast";
 import { GiCricketBat } from "react-icons/gi";
@@ -41,9 +40,8 @@ const STATES = [
 ];
 
 const Register = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector((s) => s.auth);
+  const { loading } = useAppSelector((s) => s.auth);
   const [step, setStep] = useState(1);
   const [showPass, setShowPass] = useState(false);
   const [otp, setOtp] = useState("");
@@ -68,7 +66,7 @@ const Register = () => {
       return;
     }
     try {
-      const res = await authService.register(form);
+      await authService.register(form);
       toast.success("Registered! Please login.");
       navigate("/login");
     } catch (err) {

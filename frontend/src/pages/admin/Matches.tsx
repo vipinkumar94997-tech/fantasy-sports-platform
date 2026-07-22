@@ -221,7 +221,7 @@ const AdminMatches = () => {
                       src={form.team1Logo}
                       alt="logo"
                       className="w-10 h-10 rounded-full mt-2 object-cover border border-white/20"
-                      onError={(e) => (e.target.style.display = "none")}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   )}
                 </div>
@@ -267,7 +267,7 @@ const AdminMatches = () => {
                       src={form.team2Logo}
                       alt="logo"
                       className="w-10 h-10 rounded-full mt-2 object-cover border border-white/20"
-                      onError={(e) => (e.target.style.display = "none")}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   )}
                 </div>
@@ -329,7 +329,7 @@ const AdminMatches = () => {
                               src={match.team1Logo}
                               className="w-6 h-6 rounded-full object-cover"
                               alt=""
-                              onError={(e) => (e.target.style.display = "none")}
+                              onError={(e) => (e.currentTarget.style.display = "none")}
                             />
                           )}
                           <p className="text-white font-semibold text-sm">
@@ -340,7 +340,7 @@ const AdminMatches = () => {
                               src={match.team2Logo}
                               className="w-6 h-6 rounded-full object-cover"
                               alt=""
-                              onError={(e) => (e.target.style.display = "none")}
+                              onError={(e) => (e.currentTarget.style.display = "none")}
                             />
                           )}
                         </div>

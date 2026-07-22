@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { matchService } from "../services/matchService";
 import Navbar from "../components/common/Navbar";
 import Loader from "../components/common/Loader";
