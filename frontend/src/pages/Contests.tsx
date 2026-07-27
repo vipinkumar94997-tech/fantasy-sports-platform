@@ -19,8 +19,6 @@ const Contests = () => {
     contestService
       .getByMatch(Number(matchId))
       .then((res) => {
-        console.log(res.data);
-
         setContests(res.data.contests);
       })
       .catch(() => toast.error("Failed to load contests"))

@@ -12,7 +12,8 @@ const ContestDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const matchId = location.state?.matchId;
+  const routeMatchId = location.state?.matchId;
+  const [matchId, setMatchId] = useState(routeMatchId);
   const [contest, setContest] = useState(null);
   const [myTeams, setMyTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
@@ -20,19 +21,34 @@ const ContestDetail = () => {
   const [joining, setJoining] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      contestService.getById(id),
-      matchId
-        ? teamService.getMyTeams(matchId)
-        : Promise.resolve({ data: { teams: [] } }),
-    ])
-      .then(([cRes, tRes]) => {
-        setContest(cRes.data.contest);
-        setMyTeams(tRes.data.teams);
-      })
-      .catch(() => toast.error("Failed to load contest"))
-      .finally(() => setLoading(false));
-  }, [id, matchId]);
+    let active = true;
+
+    const loadContest = async () => {
+      try {
+        setLoading(true);
+        const contestResponse = await contestService.getById(id);
+        const loadedContest = contestResponse.data.contest;
+        const resolvedMatchId = loadedContest.matchId ?? routeMatchId;
+        const teamsResponse = await teamService.getMyTeams(resolvedMatchId);
+
+        if (active) {
+          setContest(loadedContest);
+          setMatchId(resolvedMatchId);
+          setMyTeams(teamsResponse.data.teams || []);
+        }
+      } catch {
+        if (active) toast.error("Failed to load contest");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    void loadContest();
+
+    return () => {
+      active = false;
+    };
+  }, [id, routeMatchId]);
 
   const handleJoin = async () => {
     if (!selectedTeam) {

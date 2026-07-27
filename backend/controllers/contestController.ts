@@ -129,19 +129,13 @@ export const getContestsByMatch = async (req, res) => {
   try {
     const matchId = Number(req.params.matchId);
 
-    console.log("MATCH ID:", matchId);
-
     const contests = await Contest.findAll({
       where: { matchId },
       order: [["createdAt", "DESC"]],
     });
 
-    console.log("CONTESTS:", contests);
-
     res.json({ contests });
   } catch (err) {
-    console.log(err);
-
     res.status(500).json({ message: err.message });
   }
 };

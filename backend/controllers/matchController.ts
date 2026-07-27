@@ -1,5 +1,15 @@
 import Match from "../models/Match.js";
 import Player from "../models/Player.js";
+import Contest from "../models/Contest.js";
+import { Op } from "sequelize";
+
+const withContestCount = (
+  match,
+  contestCounts: ReadonlyMap<number, number>,
+) => ({
+  ...match.toJSON(),
+  totalContests: contestCounts.get(Number(match.id)) ?? 0,
+});
 
 // ================= GET ALL MATCHES =================
 
@@ -9,7 +19,22 @@ export const getMatches = async (req, res) => {
       order: [["matchTime", "ASC"]],
     });
 
-    res.json(matches);
+    const matchIds = matches.map((match) => Number(match.id));
+    const groupedCounts =
+      matchIds.length === 0
+        ? []
+        : await Contest.count({
+            where: { matchId: { [Op.in]: matchIds } },
+            group: ["matchId"],
+          });
+    const contestCounts = new Map(
+      groupedCounts.map((row) => [
+        Number(row.matchId),
+        Number(row.count),
+      ]),
+    );
+
+    res.json(matches.map((match) => withContestCount(match, contestCounts)));
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -29,7 +54,14 @@ export const getMatchById = async (req, res) => {
       });
     }
 
-    res.json(match);
+    const totalContests = await Contest.count({
+      where: { matchId: match.id },
+    });
+
+    res.json({
+      ...match.toJSON(),
+      totalContests,
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,

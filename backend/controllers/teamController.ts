@@ -4,18 +4,7 @@ import Match from "../models/Match.js";
 
 export const createTeam = async (req, res) => {
   try {
-    console.log("Team data received:", req.body);
     const { matchId, players, captainId, viceCaptainId } = req.body;
-    console.log(
-      "matchId:",
-      matchId,
-      "players:",
-      players?.length,
-      "captain:",
-      captainId,
-      "vc:",
-      viceCaptainId,
-    );
 
     const userId = req.user.id;
 
