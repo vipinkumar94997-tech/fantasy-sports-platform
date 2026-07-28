@@ -1,36 +1,40 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/common/ProtectedRoute";
-//pages
-// Pages
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import MatchDetail from "./pages/MatchDetail";
-import CreateTeam from "./pages/CreateTeam";
-import Contests from "./pages/Contests";
-import ContestDetail from "./pages/ContestDetail";
-import LiveMatch from "./pages/LiveMatch";
-import MyTeams from "./pages/MyTeams";
-import MyContests from "./pages/MyContests";
-import Wallet from "./pages/Wallet";
-import Profile from "./pages/Profile";
-import Leaderboard from "./pages/Leaderboard";
-import KYC from "./pages/KYC";
-import EditProfile from "./pages/EditProfile";
-import ReferEarn from "./pages/ReferEarn";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import ResponsibleGaming from "./pages/ResponsibleGaming";
+import Loader from "./components/common/Loader";
 
-// Admin Pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminMatches from "./pages/admin/Matches";
-import AdminUsers from "./pages/admin/Users";
-import AdminKYC from "./pages/admin/KYC";
-import AdminWithdrawals from "./pages/admin/Withdrawals";
-// import Main from "./components/Main";
+const Landing = lazy(() => import("./pages/Landing"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Home = lazy(() => import("./pages/Home"));
+const MatchDetail = lazy(() => import("./pages/MatchDetail"));
+const CreateTeam = lazy(() => import("./pages/CreateTeam"));
+const Contests = lazy(() => import("./pages/Contests"));
+const ContestDetail = lazy(() => import("./pages/ContestDetail"));
+const LiveMatch = lazy(() => import("./pages/LiveMatch"));
+const MyTeams = lazy(() => import("./pages/MyTeams"));
+const MyContests = lazy(() => import("./pages/MyContests"));
+const Wallet = lazy(() => import("./pages/Wallet"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const KYC = lazy(() => import("./pages/KYC"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
+const ReferEarn = lazy(() => import("./pages/ReferEarn"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const ResponsibleGaming = lazy(() => import("./pages/ResponsibleGaming"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminMatches = lazy(() => import("./pages/admin/Matches"));
+const AdminUsers = lazy(() => import("./pages/admin/Users"));
+const AdminKYC = lazy(() => import("./pages/admin/KYC"));
+const AdminWithdrawals = lazy(() => import("./pages/admin/Withdrawals"));
+
+const RouteLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-dark-300">
+    <Loader size="lg" text="Loading..." />
+  </div>
+);
 
 // Public routes
 const publicRoutes = [
@@ -83,6 +87,7 @@ const App = () => {
           success: { iconTheme: { primary: "#22c55e", secondary: "#fff" } },
         }}
       />
+      <Suspense fallback={<RouteLoader />}>
       <Routes>
         {publicRoutes.map(({ path, element }) => (
           <Route key={path} path={path} element={element} />
@@ -108,6 +113,7 @@ const App = () => {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

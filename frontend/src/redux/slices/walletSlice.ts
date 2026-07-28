@@ -16,6 +16,12 @@ export const fetchWallet = createAsyncThunk<WalletResponse, void, { rejectValue:
       return rejectWithValue(err.response?.data?.message);
     }
   },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as { wallet: { loading: boolean } };
+      return !state.wallet.loading;
+    },
+  },
 );
 
 const walletSlice = createSlice({

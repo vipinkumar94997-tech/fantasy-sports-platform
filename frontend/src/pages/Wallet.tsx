@@ -8,18 +8,13 @@ import Loader from "../components/common/Loader";
 import { formatCurrency, formatDate, calculateTDS } from "../utils/helpers";
 import toast from "react-hot-toast";
 import { loadRazorpay } from "../utils/loadRazorpay";
+import { useAuth } from "../hooks/useAuth";
 
 interface WalletTransaction {
   id: number;
   type: string;
   amount: number;
   createdAt: string;
-}
-
-interface StoredUser {
-  name?: string;
-  email?: string;
-  phone?: string;
 }
 
 interface OrderResponse {
@@ -51,8 +46,7 @@ const Wallet = () => {
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [txLoading, setTxLoading] = useState(true);
-  const storedUser = localStorage.getItem("user");
-  const user: StoredUser | null = storedUser ? JSON.parse(storedUser) : null;
+  const { user } = useAuth();
   const mountedRef = useRef(true);
   const checkoutRef = useRef<RazorpayInstance | null>(null);
   const paymentInProgressRef = useRef(false);

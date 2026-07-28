@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useWallet } from "../../hooks/useWallet";
@@ -6,6 +6,7 @@ import { FiLogOut, FiBell, FiMenu, FiX } from "react-icons/fi";
 import { GiCricketBat } from "react-icons/gi";
 import { formatCurrency, formatDate } from "../../utils/helpers";
 import api from "../../services/api";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -19,6 +20,7 @@ const Navbar = () => {
   const [selectedNotifs, setSelectedNotifs] = useState([]);
   const [selectMode, setSelectMode] = useState(false);
   const notifRef = useRef(null);
+  const notificationRequestRef = useRef<Promise<void> | null>(null);
 
   const navLinks = [
     { path: "/home", label: "Matches" },
@@ -27,19 +29,26 @@ const Navbar = () => {
     { path: "/leaderboard", label: "Leaderboard" },
   ];
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get("/notifications");
-      setNotifications(res.data.notifications || []);
-      setUnreadCount(res.data.unreadCount || 0);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const fetchNotifications = useCallback(() => {
+    if (notificationRequestRef.current) return notificationRequestRef.current;
+
+    notificationRequestRef.current = api
+      .get("/notifications")
+      .then((res) => {
+        setNotifications(res.data.notifications || []);
+        setUnreadCount(res.data.unreadCount || 0);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        notificationRequestRef.current = null;
+      });
+
+    return notificationRequestRef.current;
+  }, []);
 
   useEffect(() => {
-    if (isAuthenticated) fetchNotifications();
-  }, [isAuthenticated]);
+    if (isAuthenticated) void fetchNotifications();
+  }, [fetchNotifications, isAuthenticated]);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -58,8 +67,8 @@ const Navbar = () => {
       await api.put("/notifications/read-all");
       setUnreadCount(0);
       setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
-    } catch (error) {
-      console.log("MarkAllRead:", error);
+    } catch {
+      toast.error("Failed to update notifications");
     }
   };
 
@@ -70,8 +79,8 @@ const Navbar = () => {
       setUnreadCount(0);
       setSelectedNotifs([]);
       setSelectMode(false);
-    } catch (error) {
-      console.log("clearAll:", error);
+    } catch {
+      toast.error("Failed to clear notifications");
     }
   };
 
@@ -85,8 +94,8 @@ const Navbar = () => {
       );
       setSelectedNotifs([]);
       setSelectMode(false);
-    } catch (error) {
-      console.log("DeleteSelected:", error);
+    } catch {
+      toast.error("Failed to delete notifications");
     }
   };
 
@@ -178,7 +187,7 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     setShowNotif(!showNotif);
-                    if (!showNotif) fetchNotifications();
+                    if (!showNotif) void fetchNotifications();
                     setSelectMode(false);
                     setSelectedNotifs([]);
                   }}

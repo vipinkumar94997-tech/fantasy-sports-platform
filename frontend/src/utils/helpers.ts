@@ -1,4 +1,4 @@
-export const formatCurrency = (amount) => {
+export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -6,7 +6,7 @@ export const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-export const formatDate = (date) => {
+export const formatDate = (date: string | number | Date) => {
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
@@ -16,7 +16,7 @@ export const formatDate = (date) => {
   }).format(new Date(date));
 };
 
-export const timeUntilMatch = (matchTime) => {
+export const timeUntilMatch = (matchTime: string | number | Date) => {
   const diff = new Date(matchTime).getTime() - Date.now();
   if (diff <= 0) return "Started";
   const hours = Math.floor(diff / 3600000);
@@ -26,7 +26,7 @@ export const timeUntilMatch = (matchTime) => {
   return `${mins}m`;
 };
 
-export const getInitials = (name) => {
+export const getInitials = (name?: string) => {
   if (!name) return "U";
   return name
     .split(" ")
@@ -36,23 +36,23 @@ export const getInitials = (name) => {
     .slice(0, 2);
 };
 
-export const truncate = (str, n) => {
-  return str?.length > n ? str.substr(0, n - 1) + "..." : str;
+export const truncate = (str: string | undefined, n: number) => {
+  return str && str.length > n ? `${str.slice(0, n - 1)}...` : str;
 };
 
-export const calculateTDS = (amount) => {
+export const calculateTDS = (amount: number) => {
   if (amount > 10000) return amount * 0.3;
   return 0;
 };
 
-export const getRankSuffix = (rank) => {
+export const getRankSuffix = (rank: number) => {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
   if (rank === 3) return "🥉";
   return `#${rank}`;
 };
 
-export const isRestrictedState = (state) => {
+export const isRestrictedState = (state: string) => {
   const restricted = [
     "Assam",
     "Odisha",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import Loader from "../../components/common/Loader";
@@ -12,7 +12,7 @@ const AdminWithdrawals = () => {
   const [processing, setProcessing] = useState(null);
   const [totalPending, setTotalPending] = useState(0);
 
-  const fetchWithdrawals = () => {
+  const fetchWithdrawals = useCallback(() => {
     setLoading(true);
     api
       .get("/admin/withdrawals", { params: { status: filter } })
@@ -22,11 +22,11 @@ const AdminWithdrawals = () => {
       })
       .catch(() => setWithdrawals([]))
       .finally(() => setLoading(false));
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchWithdrawals();
-  }, [filter]);
+  }, [fetchWithdrawals]);
 
   const handleProcess = async (id, action) => {
     const reason = action === "reject" ? prompt("Rejection reason:") : null;

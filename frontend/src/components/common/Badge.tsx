@@ -7,7 +7,15 @@ const variants = {
   danger: "bg-red-500/20 text-red-400 border border-red-500/30",
 };
 
-const Badge = ({ label, variant = "success", pulse = false }) => {
+type BadgeVariant = keyof typeof variants;
+
+interface BadgeProps {
+  label: string;
+  variant?: BadgeVariant;
+  pulse?: boolean;
+}
+
+const Badge = ({ label, variant = "success", pulse = false }: BadgeProps) => {
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${variants[variant]}`}

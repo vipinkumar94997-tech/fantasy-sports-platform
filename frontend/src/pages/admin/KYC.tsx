@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import Loader from "../../components/common/Loader";
@@ -11,18 +11,18 @@ const AdminKYC = () => {
   const [filter, setFilter] = useState("pending");
   const [selected, setSelected] = useState(null);
 
-  const fetchKYC = () => {
+  const fetchKYC = useCallback(() => {
     setLoading(true);
     api
       .get("/kyc/all", { params: { status: filter } })
       .then((res) => setKycList(res.data.kycList || []))
       .catch(() => setKycList([]))
       .finally(() => setLoading(false));
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchKYC();
-  }, [filter]);
+  }, [fetchKYC]);
 
   const handleAction = async (id, action, reason = "") => {
     try {

@@ -19,27 +19,31 @@ const LiveMatch = () => {
   useEffect(() => {
     matchService
       .getById(matchId)
-      .then((res) => setMatch(res.data.match))
+      .then((res) => setMatch(res.data))
       .catch(() => toast.error("Failed to load match"))
       .finally(() => setLoading(false));
   }, [matchId]);
 
   useEffect(() => {
-    on("score-update", (data) => {
+    const handleScoreUpdate = (data) => {
       setMatch((prev) => ({ ...prev, ...data }));
-    });
-    on("leaderboard-update", (data) => {
-      setLeaderboard(data);
-    });
-    on("commentary", (data) => {
-      setCommentary((prev) => [data, ...prev].slice(0, 50));
-    });
-    return () => {
-      off("score-update");
-      off("leaderboard-update");
-      off("commentary");
     };
-  }, []);
+    const handleLeaderboardUpdate = (data) => {
+      setLeaderboard(data);
+    };
+    const handleCommentary = (data) => {
+      setCommentary((prev) => [data, ...prev].slice(0, 50));
+    };
+
+    on("score-update", handleScoreUpdate);
+    on("leaderboard-update", handleLeaderboardUpdate);
+    on("commentary", handleCommentary);
+    return () => {
+      off("score-update", handleScoreUpdate);
+      off("leaderboard-update", handleLeaderboardUpdate);
+      off("commentary", handleCommentary);
+    };
+  }, [off, on]);
 
   if (loading)
     return (
@@ -66,13 +70,13 @@ const LiveMatch = () => {
           <div className="flex items-center justify-between">
             <div className="text-center flex-1">
               <p className="text-white font-black text-lg">
-                {match?.team1?.shortName}
+                {match?.team1ShortName}
               </p>
               <p className="text-primary-400 font-black text-2xl">
-                {match?.team1?.score || "0/0"}
+                {match?.team1Score || "0/0"}
               </p>
               <p className="text-gray-500 text-xs">
-                {match?.team1?.overs || "0"} ov
+                {match?.team1Overs || "0"} ov
               </p>
             </div>
             <div className="text-center px-4">
@@ -90,13 +94,13 @@ const LiveMatch = () => {
             </div>
             <div className="text-center flex-1">
               <p className="text-white font-black text-lg">
-                {match?.team2?.shortName}
+                {match?.team2ShortName}
               </p>
               <p className="text-primary-400 font-black text-2xl">
-                {match?.team2?.score || "Yet to bat"}
+                {match?.team2Score || "Yet to bat"}
               </p>
               <p className="text-gray-500 text-xs">
-                {match?.team2?.overs || "0"} ov
+                {match?.team2Overs || "0"} ov
               </p>
             </div>
           </div>

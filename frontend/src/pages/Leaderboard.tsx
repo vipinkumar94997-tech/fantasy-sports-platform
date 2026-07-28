@@ -19,14 +19,12 @@ const Leaderboard = () => {
       .then((res) => {
         const lb = res.data.leaderboard || [];
         setData(lb);
-        const me = lb.find(
-          (u) => u.userId === user?.id || u.userId === user?.id,
-        );
-        if (me) setMyRank(me);
+        const me = lb.find((entry) => entry.userId === user?.id);
+        setMyRank(me ?? null);
       })
       .catch(() => setData([]))
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, [filter, user?.id]);
 
   const getMedalColor = (rank) => {
     if (rank === 1) return "text-yellow-400";

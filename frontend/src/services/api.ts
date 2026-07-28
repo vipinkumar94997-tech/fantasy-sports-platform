@@ -3,11 +3,15 @@ import { API_URL } from "../utils/constants";
 import { clearAuthSession, getStoredAuthSession, storeAccessToken } from "../utils/authStorage";
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig { _retry?: boolean }
+interface ResilientRequestConfig extends RetryableRequestConfig {
+  _networkRetry?: boolean;
+}
 interface RefreshTokenResponse { token: string }
 
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  timeout: 15000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -42,8 +46,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const original = error.config as RetryableRequestConfig | undefined;
-    if (error.response?.status !== 401 || !original) return Promise.reject(error);
+    const original = error.config as ResilientRequestConfig | undefined;
+    if (!original) return Promise.reject(error);
+
+    const status = error.response?.status;
+    const method = original.method?.toLowerCase();
+    const isRecoverable =
+      !error.response || status === 502 || status === 503 || status === 504;
+
+    if (method === "get" && isRecoverable && !original._networkRetry) {
+      original._networkRetry = true;
+      return api(original);
+    }
+
+    if (status !== 401) return Promise.reject(error);
 
     if (original._retry) {
       clearAuthSession();
@@ -51,7 +67,7 @@ api.interceptors.response.use(
     }
 
     const requestUrl = original.url ?? "";
-    if (/\/auth\/(login|register|verify-otp|refresh-token)$/.test(requestUrl)) return Promise.reject(error);
+    if (/\/auth\/(login|register|google|verify-otp|refresh-token)$/.test(requestUrl)) return Promise.reject(error);
 
     const { refreshToken } = getStoredAuthSession();
     if (!refreshToken) {

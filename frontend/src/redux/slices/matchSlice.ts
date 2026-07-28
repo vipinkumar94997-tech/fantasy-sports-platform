@@ -3,20 +3,26 @@ import { matchService } from "../../services/matchService";
 
 export const fetchMatches = createAsyncThunk(
   "matches/fetchAll",
-  async (params, { rejectWithValue }) => {
+  async (_: void, { rejectWithValue }) => {
     try {
-      const res = await matchService.getAll(params);
+      const res = await matchService.getAll();
       // Backend seedha array bhejta hai
       return Array.isArray(res.data) ? res.data : res.data.matches || [];
     } catch (err) {
       return rejectWithValue(err.response?.data?.message);
     }
   },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as { matches: { loading: boolean } };
+      return !state.matches.loading;
+    },
+  },
 );
 
 export const fetchMatchById = createAsyncThunk(
   "matches/fetchById",
-  async (id, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
       const res = await matchService.getById(id);
       return Array.isArray(res.data) ? res.data : res.data;

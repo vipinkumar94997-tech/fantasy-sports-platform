@@ -29,7 +29,7 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials, { reje
   }
 });
 
-export const registerUser = createAsyncThunk<unknown, unknown, { rejectValue: string }>("auth/register", async (data, { rejectWithValue }) => {
+export const registerUser = createAsyncThunk<unknown, Record<string, unknown>, { rejectValue: string }>("auth/register", async (data, { rejectWithValue }) => {
   try { return (await authService.register(data)).data; }
   catch (error: unknown) { return rejectWithValue(errorMessage(error, "Registration failed")); }
 });

@@ -13,7 +13,12 @@ const migration = {
           autoIncrement: true,
           primaryKey: true,
         },
-        adminId: { type: DataTypes.STRING(36), allowNull: false },
+        adminId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: { model: "Users", key: "id" },
+          onDelete: "CASCADE",
+        },
         action: { type: DataTypes.STRING, allowNull: false },
         targetType: { type: DataTypes.STRING, allowNull: true },
         targetId: { type: DataTypes.STRING, allowNull: true },
@@ -32,10 +37,24 @@ const migration = {
           autoIncrement: true,
           primaryKey: true,
         },
-        teamId: { type: DataTypes.INTEGER, allowNull: false },
-        playerId: { type: DataTypes.INTEGER, allowNull: false },
+        teamId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: { model: "Teams", key: "id" },
+          onDelete: "CASCADE",
+        },
+        playerId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: { model: "Players", key: "id" },
+          onDelete: "CASCADE",
+        },
         createdAt: { type: DataTypes.DATE, allowNull: false },
         updatedAt: { type: DataTypes.DATE, allowNull: false },
+      });
+      await queryInterface.addIndex("TeamPlayers", ["teamId", "playerId"], {
+        unique: true,
+        name: "team_players_team_player_unique",
       });
     }
   },

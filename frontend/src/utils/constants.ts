@@ -1,9 +1,23 @@
-export const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+const requiredEnvironmentValue = (name: string, value?: string): string => {
+  const normalized = value?.trim();
+  if (!normalized) throw new Error(`Missing required environment variable: ${name}`);
+  return normalized.replace(/\/+$/, "");
+};
 
-export const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  "https://fantasy-sports-platform-6.onrender.com";
+export const API_URL = requiredEnvironmentValue(
+  "VITE_API_URL",
+  import.meta.env.VITE_API_URL,
+);
+
+export const SOCKET_URL = requiredEnvironmentValue(
+  "VITE_SOCKET_URL",
+  import.meta.env.VITE_SOCKET_URL,
+);
+
+export const GOOGLE_CLIENT_ID = requiredEnvironmentValue(
+  "VITE_GOOGLE_CLIENT_ID",
+  import.meta.env.VITE_GOOGLE_CLIENT_ID,
+);
 
 export const RESTRICTED_STATES = [
   "Assam",

@@ -121,7 +121,7 @@ const MatchDetail = () => {
           </div>
 
           {/* Create Team Button */}
-          {match.status !== "upcomming" && (
+          {match.status === "upcoming" && (
             <button
               onClick={() => navigate(`/match/${id}/create-team`)}
               className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-4 rounded-xl transition-colors text-lg"

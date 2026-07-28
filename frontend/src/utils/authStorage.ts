@@ -41,6 +41,7 @@ const notifySessionChanged = () => window.dispatchEvent(new CustomEvent(AUTH_SES
 export const storeAuthSession = (session: { token: string; refreshToken?: string | null; user: AuthUser }) => {
   localStorage.setItem("token", session.token);
   if (session.refreshToken) localStorage.setItem("refreshToken", session.refreshToken);
+  else localStorage.removeItem("refreshToken");
   localStorage.setItem("user", JSON.stringify(session.user));
   notifySessionChanged();
 };

@@ -19,7 +19,7 @@ const Home = () => {
     dispatch(fetchMatches());
     const interval = setInterval(() => dispatch(fetchMatches()), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [dispatch]);
 
   const filtered = (matches || []).filter((m) => {
     if (filter === "All") return true;

@@ -11,7 +11,7 @@ export const useWallet = () => {
 
   useEffect(() => {
     dispatch(fetchWallet());
-  }, []);
+  }, [dispatch]);
 
   return {
     balance,

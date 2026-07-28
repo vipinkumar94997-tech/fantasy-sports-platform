@@ -32,8 +32,7 @@ const CreateTeam = () => {
           res.data?.players || res.data?.data || res.data || [];
 
         setPlayers(Array.isArray(playersData) ? playersData : []);
-      } catch (error) {
-        console.error("Players Fetch Error:", error);
+      } catch {
         toast.error("Failed to load players");
         setPlayers([]);
       } finally {
@@ -166,8 +165,6 @@ const CreateTeam = () => {
 
       navigate(`/match/${matchId}/contests`);
     } catch (error) {
-      console.error("Save Team Error:", error);
-
       toast.error(error.response?.data?.message || "Failed to save team");
     } finally {
       setSaving(false);

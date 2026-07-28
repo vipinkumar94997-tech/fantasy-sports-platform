@@ -1,5 +1,11 @@
-const Loader = ({ size = "md", text = "" }) => {
-  const sizes = { sm: "w-5 h-5", md: "w-8 h-8", lg: "w-12 h-12" };
+const sizes = { sm: "w-5 h-5", md: "w-8 h-8", lg: "w-12 h-12" };
+
+interface LoaderProps {
+  size?: keyof typeof sizes;
+  text?: string;
+}
+
+const Loader = ({ size = "md", text = "" }: LoaderProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">

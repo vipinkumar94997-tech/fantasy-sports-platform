@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import Loader from "../../components/common/Loader";
@@ -13,7 +13,7 @@ const AdminUsers = () => {
   const [total, setTotal] = useState(0);
   const LIMIT = 20;
 
-  const fetchUsers = () => {
+  const fetchUsers = useCallback(() => {
     setLoading(true);
     api
       .get("/admin/users", { params: { search, page, limit: LIMIT } })
@@ -22,11 +22,11 @@ const AdminUsers = () => {
         setTotal(res.data.total);
       })
       .finally(() => setLoading(false));
-  };
+  }, [page, search]);
 
   useEffect(() => {
     fetchUsers();
-  }, [search, page]);
+  }, [fetchUsers]);
 
   const handleBan = async (id, banned) => {
     try {

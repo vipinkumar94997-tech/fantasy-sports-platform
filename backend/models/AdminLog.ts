@@ -4,7 +4,7 @@ import sequelize from "../config/db.js";
 const AdminLog = sequelize.define(
   "AdminLog",
   {
-    adminId: { type: DataTypes.STRING(36), allowNull: false },
+    adminId: { type: DataTypes.INTEGER, allowNull: false },
     action: { type: DataTypes.STRING, allowNull: false },
     targetType: { type: DataTypes.STRING },
     targetId: { type: DataTypes.STRING },
