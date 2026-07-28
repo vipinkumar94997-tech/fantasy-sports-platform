@@ -4,6 +4,7 @@ import {
   login,
   getProfile,
   refreshToken,
+  googleLogin,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
@@ -11,12 +12,15 @@ import Match from "../models/Match.js";
 import Contest from "../models/Contest.js";
 import ContestEntry from "../models/ContestEntry.js";
 import { Op } from "sequelize";
+import { authLimiter } from "../middleware/rateLimiter.js";
+import { validateLogin, validateRegister } from "../middleware/validate.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/refresh-token", refreshToken);
+router.post("/register", authLimiter, validateRegister, register);
+router.post("/login", authLimiter, validateLogin, login);
+router.post("/refresh-token", authLimiter, refreshToken);
+router.post("/google", authLimiter, googleLogin);
 router.get("/profile", protect, getProfile);
 router.put("/profile", protect, async (req, res) => {
   try {

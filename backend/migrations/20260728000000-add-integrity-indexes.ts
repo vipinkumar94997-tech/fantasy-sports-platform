@@ -2,7 +2,9 @@ import { Op, type QueryInterface } from "sequelize";
 
 const migration = {
   async up(queryInterface: QueryInterface) {
-    const indexes = await queryInterface.showIndex("ContestEntries");
+    const indexes = (await queryInterface.showIndex(
+      "ContestEntries",
+    )) as Array<{ name: string }>;
     if (
       !indexes.some(
         (index) => index.name === "contest_entries_user_contest_team_unique",
@@ -18,7 +20,9 @@ const migration = {
       );
     }
 
-    const transactionIndexes = await queryInterface.showIndex("Transactions");
+    const transactionIndexes = (await queryInterface.showIndex(
+      "Transactions",
+    )) as Array<{ name: string }>;
     if (
       !transactionIndexes.some(
         (index) => index.name === "transactions_order_id_unique",

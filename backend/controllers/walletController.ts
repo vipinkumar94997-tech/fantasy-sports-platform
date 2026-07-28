@@ -158,37 +158,57 @@ export const verifyPayment = async (req, res) => {
 
 export const withdrawMoney = async (req, res) => {
   try {
-    const { amount, upiId } = req.body;
+    const numericAmount = Number(req.body.amount);
+    const upiId = String(req.body.upiId ?? "").trim();
 
-    if (!amount || amount < 100)
+    if (!Number.isFinite(numericAmount) || numericAmount < 100)
       return res.status(400).json({ message: "Minimum withdrawal ₹100" });
 
-    if (!upiId) return res.status(400).json({ message: "UPI ID required" });
+    if (!/^[\w.-]+@[\w.-]+$/.test(upiId))
+      return res.status(400).json({ message: "Valid UPI ID required" });
 
-    const wallet = await Wallet.findOne({ where: { userId: req.user.id } });
-    if (!wallet || wallet.balance < amount)
+    const result = await sequelize.transaction(async (transaction) => {
+      const wallet = await Wallet.findOne({
+        where: { userId: req.user.id },
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!wallet || Number(wallet.balance) < numericAmount)
+        return { ok: false as const };
+
+      const tdsAmount = numericAmount > 10000 ? numericAmount * 0.3 : 0;
+
+      await wallet.update(
+        { balance: Number(wallet.balance) - numericAmount },
+        { transaction },
+      );
+
+      await Withdrawal.create(
+        {
+          userId: req.user.id,
+          amount: numericAmount,
+          upiId,
+          tdsAmount,
+          status: "pending",
+        },
+        { transaction },
+      );
+
+      await Transaction.create(
+        {
+          userId: req.user.id,
+          type: "withdrawal",
+          amount: numericAmount,
+          status: "pending",
+          note: `Withdrawal to ${upiId}`,
+        },
+        { transaction },
+      );
+      return { ok: true as const };
+    });
+
+    if (!result.ok)
       return res.status(400).json({ message: "Insufficient balance" });
-
-    const tdsAmount = amount > 10000 ? amount * 0.3 : 0;
-
-    wallet.balance -= parseFloat(amount);
-    await wallet.save();
-
-    await Withdrawal.create({
-      userId: req.user.id,
-      amount: parseFloat(amount),
-      upiId,
-      tdsAmount,
-      status: "pending",
-    });
-
-    await Transaction.create({
-      userId: req.user.id,
-      type: "withdrawal",
-      amount: parseFloat(amount),
-      status: "pending",
-      note: `Withdrawal to ${upiId}`,
-    });
 
     res.json({ message: "Withdrawal request submitted" });
   } catch (err) {

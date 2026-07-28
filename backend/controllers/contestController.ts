@@ -3,10 +3,15 @@ import ContestEntry from "../models/ContestEntry.js";
 import Match from "../models/Match.js";
 import Wallet from "../models/Wallet.js";
 import Transaction from "../models/Transaction.js";
+import Team from "../models/Team.js";
+import sequelize from "../config/db.js";
 
 export const getContestsByMatch = async (req, res) => {
   try {
     const matchId = Number(req.params.matchId);
+    if (!Number.isInteger(matchId) || matchId <= 0) {
+      return res.status(400).json({ message: "Valid matchId required" });
+    }
 
     const contests = await Contest.findAll({
       where: { matchId },
@@ -31,54 +36,103 @@ export const getContestById = async (req, res) => {
 
 export const joinContest = async (req, res) => {
   try {
-    const { contestId, teamId } = req.body;
+    const contestId = Number(req.body.contestId);
+    const teamId = Number(req.body.teamId);
     const userId = req.user.id;
-
-    const contest = await Contest.findByPk(contestId);
-    if (!contest) return res.status(404).json({ message: "Contest not found" });
-
-    // Already joined check
-    const existing = await ContestEntry.findOne({
-      where: { contestId, userId, teamId },
-    });
-    if (existing) return res.status(400).json({ message: "Already joined" });
-
-    // Spots check
-    if (contest.filledSpots >= contest.totalSpots)
-      return res.status(400).json({ message: "Contest is full" });
-
-    // Entry fee deduct
-    if (contest.entryFee > 0) {
-      const wallet = await Wallet.findOne({ where: { userId } });
-      if (!wallet || wallet.balance < contest.entryFee)
-        return res.status(400).json({ message: "Insufficient balance" });
-
-      wallet.balance -= contest.entryFee;
-      await wallet.save();
-
-      await Transaction.create({
-        userId,
-        type: "contest_join",
-        amount: contest.entryFee,
-        status: "success",
-        note: `Joined contest: ${contest.name}`,
-      });
+    if (
+      !Number.isInteger(contestId) ||
+      contestId <= 0 ||
+      !Number.isInteger(teamId) ||
+      teamId <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Valid contestId and teamId required" });
     }
 
-    // Create entry
-    await ContestEntry.create({
-      userId,
-      contestId,
-      teamId,
-      matchId: contest.matchId,
-      points: 0,
-      winning: 0,
+    const result = await sequelize.transaction(async (transaction) => {
+      const contest = await Contest.findByPk(contestId, {
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!contest) return { status: 404, message: "Contest not found" };
+      if (contest.status !== "open") {
+        return { status: 400, message: "Contest is not open" };
+      }
+
+      const team = await Team.findOne({
+        where: { id: teamId, userId },
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!team) return { status: 404, message: "Team not found" };
+      if (Number(team.matchId) !== Number(contest.matchId)) {
+        return { status: 400, message: "Team does not belong to this match" };
+      }
+
+      const existing = await ContestEntry.findOne({
+        where: { contestId, userId, teamId },
+        transaction,
+      });
+      if (existing) return { status: 409, message: "Already joined" };
+
+      if (Number(contest.filledSpots) >= Number(contest.totalSpots)) {
+        return { status: 409, message: "Contest is full" };
+      }
+
+      const entryFee = Number(contest.entryFee);
+      if (entryFee > 0) {
+        const wallet = await Wallet.findOne({
+          where: { userId },
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+        if (!wallet || Number(wallet.balance) < entryFee) {
+          return { status: 400, message: "Insufficient balance" };
+        }
+
+        await wallet.update(
+          { balance: Number(wallet.balance) - entryFee },
+          { transaction },
+        );
+        await Transaction.create(
+          {
+            userId,
+            type: "contest_join",
+            amount: entryFee,
+            status: "success",
+            note: `Joined contest: ${contest.name}`,
+          },
+          { transaction },
+        );
+      }
+
+      await ContestEntry.create(
+        {
+          userId,
+          contestId,
+          teamId,
+          matchId: contest.matchId,
+          points: 0,
+          winning: 0,
+        },
+        { transaction },
+      );
+
+      const filledSpots = Number(contest.filledSpots) + 1;
+      await contest.update(
+        {
+          filledSpots,
+          status:
+            filledSpots >= Number(contest.totalSpots) ? "full" : "open",
+        },
+        { transaction },
+      );
+
+      return { status: 200, message: "Contest joined successfully!" };
     });
 
-    // Update filled spots
-    await contest.update({ filledSpots: contest.filledSpots + 1 });
-
-    res.json({ message: "Contest joined successfully!" });
+    return res.status(result.status).json({ message: result.message });
   } catch (err) {
     console.error("Join contest error:", err);
     res.status(500).json({ message: err.message });

@@ -1,15 +1,20 @@
+import { Sequelize, type QueryInterface } from "sequelize";
 import sequelize from "../config/db.js";
 import initialMigration from "../migrations/20260523100816-init.js";
 import teamColumnsMigration from "../migrations/20260722000000-add-team-rank-status.js";
 import missingTablesMigration from "../migrations/20260722000001-create-missing-model-tables.js";
 import integrityIndexesMigration from "../migrations/20260728000000-add-integrity-indexes.js";
 
-const migrations = [
+interface Migration {
+  up(queryInterface: QueryInterface, SequelizeType?: typeof Sequelize): Promise<void>;
+}
+
+const migrations: ReadonlyArray<readonly [string, Migration]> = [
   ["20260523100816-init", initialMigration],
   ["20260722000000-add-team-rank-status", teamColumnsMigration],
   ["20260722000001-create-missing-model-tables", missingTablesMigration],
   ["20260728000000-add-integrity-indexes", integrityIndexesMigration],
-] as const;
+];
 
 const queryInterface = sequelize.getQueryInterface();
 
@@ -31,7 +36,7 @@ try {
   for (const [name, migration] of migrations) {
     if (completed.has(name)) continue;
 
-    await migration.up(queryInterface);
+    await migration.up(queryInterface, Sequelize);
     await sequelize.query(
       'INSERT INTO "SequelizeMeta" ("name") VALUES (:name)',
       { replacements: { name } },
